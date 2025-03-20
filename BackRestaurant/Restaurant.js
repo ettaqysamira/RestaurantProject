@@ -47,7 +47,7 @@ const MenuItem = mongoose.model('MenuItem', new mongoose.Schema({
     allergens: [String],
     available: Boolean,
     image: String 
-}));
+}))
 
 const Order = mongoose.model('Order', new mongoose.Schema({
     items: [{
@@ -61,6 +61,11 @@ const Order = mongoose.model('Order', new mongoose.Schema({
     createdAt: { type: Date, default: Date.now }, 
     ticket: { type: Object, required: false }, 
     deliveryOption: { type: String, required: true },
+    status: { 
+        type: String, 
+        enum: [ "en attente", "en préparation" ,"prêt à servir" , "livrée" , "annulée"],
+        default:"en attente"
+    }
     
 }))
 app.post('/api/menu', upload.single('image'), (req, res) => {
@@ -99,7 +104,7 @@ app.get('/api/menu', async (req, res) => {
         console.error("Erreur lors de la récupération des plats :", err)
         res.status(500).json({ error: 'Erreur lors de la récupération des plats' })
     }
-});
+})
 
 app.get('/api/menu/count', async (req, res) => {
     try {
@@ -107,6 +112,18 @@ app.get('/api/menu/count', async (req, res) => {
         res.json({ count })
     } catch (error) {
         console.error("Erreur lors du comptage des plats :", error)
+        res.status(500).json({ error: "Erreur serveur" })
+    }
+})
+
+app.get('/api/orders/count', async (req, res) => {
+    try {
+       
+        const totalCount = await Order.countDocuments()
+        const preparationCount = await Order.countDocuments({ status: "en préparation" })
+        res.json({ totalCount, preparationCount })
+    } catch (error) {
+        console.error("Erreur lors du comptage des commandes :", error)
         res.status(500).json({ error: "Erreur serveur" })
     }
 })
@@ -170,26 +187,31 @@ app.put('/api/menu/:id', upload.single('image'), async (req, res) => {
 
 app.post('/api/orders', async (req, res) => {
     try {
-        const { items, total, ticket, deliveryOption } = req.body;
+        console.log("Données reçues :", req.body)
+
+        const { items, total, ticket, deliveryOption } = req.body 
 
         if (!items || !total || !deliveryOption) {
-            return res.status(400).json({ message: "Tous les champs requis ne sont pas fournis." })
+            return res.status(400).json({ message: "rempli tous les champs" })
         }
 
         const newOrder = new Order({ items, total, ticket, deliveryOption })
         await newOrder.save();
+
         res.status(201).json({ message: "Commande créée avec succès", order: newOrder })
     } catch (error) {
-        res.status(500).json({ message: "Erreur serveur lors de la création de la commande.", error })
+        console.error("Erreur lors de la création de la commande :", error);
+        res.status(500).json({ message: "Erreur lors la création de la commande.", error })
     }
 })
+
 
 app.get('/api/orders', async (req, res) => {
     try {
         const orders = await Order.find()
         res.status(200).json(orders)
     } catch (error) {
-        res.status(500).json({ error: "Erreur serveur lors de la récupération des commandes." })
+        res.status(500).json({ error: "Erreur lors de la récupération des commandes" })
     }
 })
 
@@ -226,6 +248,27 @@ app.get('/api/orders/:id/ticket', async (req, res) => {
         res.status(200).json({ ticket: order.ticket })
     } catch (error) {
         res.status(500).json({ error: "Erreur lors de la récupération du ticket." })
+    }
+})
+
+// changer status de commande 
+app.put('/api/orders/:id/status', async (req, res) => {
+    try {
+        const { status } = req.body
+
+        if (!["en attente", "en préparation", "prêt à servir", "livrée", "annulée"].includes(status)) {
+            return res.status(400).json({ error: "Statut invalide" })
+        }
+
+        const order = await Order.findByIdAndUpdate(req.params.id, { status }, { new: true })
+
+        if (!order) {
+            return res.status(404).json({ error: "Commande non trouvée" })
+        }
+
+        res.json({ message: "Statut de commande mis à jour", order })
+    } catch (error) {
+        res.status(500).json({ error: "Erreur serveur lors de la mise à jour du statut" })
     }
 })
 

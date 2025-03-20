@@ -112,7 +112,7 @@ const MenuCategorie = ({ addToOrder }) => {
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
 export default MenuCategorie;

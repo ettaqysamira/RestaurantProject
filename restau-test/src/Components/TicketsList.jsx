@@ -26,6 +26,32 @@ const TicketsList = () => {
     fetchTickets()
   }, [])
 
+  const updateOrderStatus = async (orderId, newStatus) => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/orders/${orderId}/status`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status: newStatus }),
+      })
+  
+      if (response.ok) {
+        const data = await response.json()
+        setTickets(prevTickets =>
+          prevTickets.map(ticket =>
+            ticket._id === orderId ? { ...ticket, status: newStatus } : ticket
+          )
+        )
+      } else {
+        console.error("Erreur lors de la mise à jour du statut.")
+      }
+    } catch (error) {
+      console.error("Erreur serveur :", error)
+    }
+  }
+
+  
   if (loading) return <p>Chargement des tickets...</p>
 
   return (
@@ -87,10 +113,10 @@ const TicketsList = () => {
 
                 <div className="back flex flex-col justify-center items-center p-4 bg-gray-900 text-white ">
                   <h3 className="text-xl font-semibold mb-4 text-[#1b1b1b] ">L'état du commande</h3>
-                  <button className="px-2 py-2 border border-[#1b1b1b] text-white  hover:bg-[#1b1b1b]  w-56 text-xs font-noah uppercase tracking-[0.3em] font-semibold h-[3.2rem]">
+                  <button  className="px-2 py-2 border border-[#1b1b1b] text-white hover:bg-[#1b1b1b] w-56 text-xs font-noah uppercase tracking-[0.3em] font-semibold h-[3.2rem]" onClick={() => updateOrderStatus(order._id, "en préparation")}>
                         en Préparation 
                     </button>
-                    <button className="mt-3 px-2 py-2 border border-[#1b1b1b] text-white  hover:bg-[#1b1b1b]  w-56 text-xs font-noah  uppercase tracking-[0.3em] font-semibold h-[3.2rem]">
+                    <button className="mt-3 px-2 py-2 border border-[#1b1b1b] text-white hover:bg-[#1b1b1b] w-56 text-xs font-noah uppercase tracking-[0.3em] font-semibold h-[3.2rem]" onClick={() => updateOrderStatus(order._id, "prêt à servir")}>
                         Prêt à servir
                     </button>
                 </div>
