@@ -12,8 +12,9 @@ app.use(cors({
     credentials: true
 }));
 
-app.use(express.json());
-app.use('/restoreImage', express.static('restoreImage'));
+
+app.use(express.json())
+app.use('/restoreImage', express.static('restoreImage'))
 
 const MONGO_URI = "mongodb+srv://samiraettaqy:samiraMongoose@cluster0.njz9h.mongodb.net/BistroRestaurant?retryWrites=true&w=majority&appName=Cluster0";
 
@@ -57,6 +58,9 @@ const Order = mongoose.model('Order', new mongoose.Schema({
         quantity: Number,
         image: String
     }],
+    subtotal: Number, 
+    tax: Number,
+    discount: Number,
     total: Number,
     createdAt: { type: Date, default: Date.now }, 
     ticket: { type: Object, required: false }, 
@@ -98,7 +102,7 @@ app.post('/api/menu', upload.single('image'), (req, res) => {
 
 app.get('/api/menu', async (req, res) => {
     try {
-        const menuItems = await MenuItem.find()
+        const menuItems = await MenuItem.find();
         res.status(200).json(menuItems)
     } catch (err) {
         console.error("Erreur lors de la récupération des plats :", err)
@@ -187,23 +191,40 @@ app.put('/api/menu/:id', upload.single('image'), async (req, res) => {
 
 app.post('/api/orders', async (req, res) => {
     try {
-        console.log("Données reçues :", req.body)
-
-        const { items, total, ticket, deliveryOption } = req.body 
-
-        if (!items || !total || !deliveryOption) {
-            return res.status(400).json({ message: "rempli tous les champs" })
-        }
-
-        const newOrder = new Order({ items, total, ticket, deliveryOption })
-        await newOrder.save();
-
-        res.status(201).json({ message: "Commande créée avec succès", order: newOrder })
+      console.log("Données reçues :", req.body);
+  
+      const { items, discount = 10, taxRate = 0.2, deliveryOption, ticket } = req.body;
+  
+      if (!items || !deliveryOption || !ticket) {
+        return res.status(400).json({ message: "Remplissez tous les champs" });
+      }
+  
+      const subtotal = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
+  
+      const tax = subtotal * taxRate;
+      const total = subtotal + tax - discount;
+  
+      const newOrder = new Order({
+        items,
+        subtotal,
+        tax,
+        discount,
+        total,
+        deliveryOption,
+        ticket, 
+      })
+  
+      await newOrder.save();
+  
+      res.status(201).json({ message: "Commande créée avec succès", order: newOrder });
     } catch (error) {
-        console.error("Erreur lors de la création de la commande :", error);
-        res.status(500).json({ message: "Erreur lors la création de la commande.", error })
+      console.error("Erreur lors de la création de la commande :", error);
+      res.status(500).json({ message: "Erreur serveur" });
     }
-})
+  })
+  
+
+
 
 
 app.get('/api/orders', async (req, res) => {
@@ -226,6 +247,7 @@ app.get('/api/orders/:id', async (req, res) => {
         res.status(500).json({ error: "Erreur serveur lors de la récupération de la commande." })
     }
 })
+
 
 app.delete('/api/orders/:id', async (req, res) => {
     try {
@@ -251,26 +273,32 @@ app.get('/api/orders/:id/ticket', async (req, res) => {
     }
 })
 
-// changer status de commande 
+
+
 app.put('/api/orders/:id/status', async (req, res) => {
-    try {
-        const { status } = req.body
-
-        if (!["en attente", "en préparation", "prêt à servir", "livrée", "annulée"].includes(status)) {
-            return res.status(400).json({ error: "Statut invalide" })
-        }
-
-        const order = await Order.findByIdAndUpdate(req.params.id, { status }, { new: true })
-
-        if (!order) {
-            return res.status(404).json({ error: "Commande non trouvée" })
-        }
-
-        res.json({ message: "Statut de commande mis à jour", order })
-    } catch (error) {
-        res.status(500).json({ error: "Erreur serveur lors de la mise à jour du statut" })
+    const { status } = req.body;
+  
+    const validStatuses = ["en attente", "en préparation", "prêt à servir", "livrée", "annulée"];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ error: "Statut invalide" })
     }
-})
+  
+    try {
+      const order = await Order.findById(req.params.id);
+      if (!order) {
+        return res.status(404).json({ error: "Commande non trouvée" })
+      }
+  
+      order.status = status;
+      await order.save();
+  
+      res.status(200).json({ message: "Statut de la commande mis à jour", order })
+    } catch (error) {
+      console.error("Erreur lors de la mise à jour du statut de la commande :", error)
+      res.status(500).json({ error: "Erreur serveur lors de la mise à jour du statut" })
+    }
+  })
+  
 
 
 const PORT = process.env.PORT || 5000

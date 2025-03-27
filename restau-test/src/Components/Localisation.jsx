@@ -4,7 +4,7 @@ const Localisation = () => {
         <>
       <div
         className="fixed inset-0 bg-cover bg-center"
-        style={{ backgroundImage: `url('https://img.freepik.com/photos-gratuite/homme-debout-devant-plaque-legumes_417767-135.jpg?t=st=1741180646~exp=1741184246~hmac=2e084b895b54726d409815950541fce3a4a5ec7545d9a7653acd271a2f41e36f&w=740')`, zIndex: -1 }}
+        style={ { backgroundImage: `url('https://img.freepik.com/photos-gratuite/homme-debout-devant-plaque-legumes_417767-135.jpg?t=st=1741180646~exp=1741184246~hmac=2e084b895b54726d409815950541fce3a4a5ec7545d9a7653acd271a2f41e36f&w=740')`, zIndex: -1 }}
       />
 
       <div className="fixed inset-0  opacity-80 z-0" />

@@ -9,7 +9,7 @@ const RestaurantSection = () => {
       duration: 1000,
       once: false,
     });
-  }, []);
+  }, [])
 
   return (
     <>

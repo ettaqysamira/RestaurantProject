@@ -13,7 +13,7 @@ const TesterMenu = () => {
     axios.get("http://localhost:5000/api/menu")
       .then((response) => setMenuItems(response.data))
       .catch((error) => console.error("Erreur lors de la récupération des plats :", error))
-  }, []);
+  }, [])
 
   const settings = {
     dots: false,
@@ -65,7 +65,7 @@ const TesterMenu = () => {
         </div>
       </section>
     </>
-  );
-};
+  )
+}
 
 export default TesterMenu;

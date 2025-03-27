@@ -60,7 +60,7 @@ const Confirmation = () => {
         </ul>
       </div>
     </div>
-  );
-};
+  )
+}
 
 export default Confirmation;

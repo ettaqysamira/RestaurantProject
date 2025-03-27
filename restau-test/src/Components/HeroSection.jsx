@@ -39,7 +39,7 @@ const HeroSection = () => {
           Besoin d’ingrédients
         </button>
 
-        {/* Bouton "Buy Now" */}
+       
         <Link to="/cuisinier/tickets">
         <button className=" ticket flex items-center  text-black ">
           <Tickets size={18} className="mr-2" />
@@ -50,7 +50,7 @@ const HeroSection = () => {
       </div>
       
     </div>
-  );
-};
+  )
+}
 
 export default HeroSection;

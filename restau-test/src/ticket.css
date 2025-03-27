@@ -42,6 +42,7 @@
   .back {
     background-color: #c19d60;
     color: #fff;
+    height: 33rem;
     transform: rotateY(180deg);
   }
   .ticket, .besoin{

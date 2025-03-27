@@ -16,6 +16,11 @@ import TicketsList from './Components/TicketsList';
 import Checkout from './Components/TicketTest';
 import HeroSection from './Components/HeroSection';
 import { useState } from "react";
+import TicketsList2 from './Components/Teckets1';
+import OrderDetails from './Components/OrderDetails';
+import Samira from './Components/Samira';
+import Livreur from './Components/Livreur';
+import LivraisonDetails from './Components/LivraisonDetails';
 
 function App() {
   const [orderItems, setOrderItems] = useState([]);
@@ -33,12 +38,14 @@ function App() {
 }
 
 function Layout({ orderItems, addToOrder }) {
-  const location = useLocation(); // Utilisation de useLocation
+  const location = useLocation()
+  const HideNavBar = location.pathname.startsWith('/cuisinier') || location.pathname.startsWith('/livreur')
+
 
   return (
     <>
-      {/* Affiche NavBar sauf si la route est '/cuisinier' */}
-      { !location.pathname.startsWith('/cuisinier') && <NavBar orderItems={orderItems} /> }      
+       {!HideNavBar && <NavBar />}
+
       <Routes>
         <Route path='/' element={
           <>
@@ -62,7 +69,12 @@ function Layout({ orderItems, addToOrder }) {
         <Route path='/ticketcarte' element={<Checkout />} />
         <Route path='/cuisinier' element={<HeroSection />}/>
             <Route path='/cuisinier/tickets' element={<TicketsList />} />
-        
+            <Route path='/tick' element={<TicketsList2 />} />
+            <Route path="/order-details/:id" element={<OrderDetails />} />
+            <Route path="/samira" element={<Samira />} />
+            <Route path="/livreur" element={<Livreur />} />
+            <Route path="/informations-livraison" element={<LivraisonDetails />} />
+
       </Routes>
     </>
   );
