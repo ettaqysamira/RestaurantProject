@@ -69,7 +69,8 @@ const Order = mongoose.model('Order', new mongoose.Schema({
         type: String, 
         enum: [ "en attente", "en préparation" ,"prêt à servir" , "livrée" , "annulée"],
         default:"en attente"
-    }
+    },
+    
     
 }))
 app.post('/api/menu', upload.single('image'), (req, res) => {

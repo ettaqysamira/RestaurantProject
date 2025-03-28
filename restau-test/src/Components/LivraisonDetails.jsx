@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { CircleCheckBig } from 'lucide-react';
 import '../Livreur.css'
+
 const LivraisonDetails = () => {
     const location = useLocation();
     const navigate = useNavigate();
@@ -36,9 +37,9 @@ const LivraisonDetails = () => {
 
         if (currentStep === 2) {
             const { cartItems, subtotal } = location.state;
-            const ticketNumber = `TICKET-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${Math.floor(Math.random() * 1000)}`;
-            const clientName = `${name} ${surname}`;
-            const paymentStatus = "À payer";
+            const ticketNumber = `TICKET-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${Math.floor(Math.random() * 1000)}`
+            const clientName = `${name} ${surname}`
+            const paymentStatus = "À payer"
 
             const newTicket = {
                 ticketNumber,
@@ -60,29 +61,45 @@ const LivraisonDetails = () => {
                 province,
                 city,
                 neighborhood
-            };
+            }
 
             try {
                 const response = await fetch("http://localhost:5000/api/orders", {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(newTicket)
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        items: cartItems,
+                        total: parseFloat(subtotal.toFixed(2)),
+                        ticket: newTicket,
+                        deliveryOption: "delivery",
+                        paymentMethod,
+                        address,
+                        phone,
+                        country,
+                        province,
+                        city,
+                        neighborhood
+                    })
                 });
 
                 if (response.ok) {
+                    const data = await response.json();
                     setSuccessMessage("Commande passée avec succès !");
                     localStorage.removeItem("cartItems");
                     localStorage.removeItem("subtotal");
-                    navigate("/confirmation");
+                    navigate("/confirmation", { state: { _id: data._id } });
                 } else {
-                    alert("Erreur lors de la validation de la commande.");
+                    const errorData = await response.json();
+                    alert(`Erreur lors de la validation de la commande: ${errorData.message}`);
                 }
             } catch (error) {
                 console.error("Erreur lors de l'envoi de la commande :", error);
                 alert("Erreur serveur.");
             }
         }
-    };
+    }
 
     return (
         <div className="flex justify-center items-center h-screen bg-black text-white p-8 pt-36">
@@ -104,7 +121,7 @@ const LivraisonDetails = () => {
                         </div>
                         <button type="submit" className="btn-primary mt-4 px-6 py-2 border border-[#808000] hover:bg-[#808000] hover:text-black transition">Suivant</button>
                         <button type="button" onClick={handleCancel} className="btn-secondary mt-4 ml-2  px-6 py-2 border border-[#808000] hover:bg-[#808000] hover:text-black transition">Annuler</button>
-                        <h2 className="text-3xl font-semibold text-center my-6 opacity-40">02. Adresses</h2>
+                        <h2 className="text-3xl font-semibold text-center my-6 opacity-40">02. Méthode de Paiement</h2>
                     </>
                 )}
                 
@@ -118,7 +135,7 @@ const LivraisonDetails = () => {
                     
                         <div className="flex items-center gap-4 mb-6">
                             
-                            <h2 className="text-2xl font-bold">Méthode de Paiement</h2>
+                            <h2 className="text-2xl font-bold">2. Méthode de Paiement</h2>
                         </div>
                         <div className="flex flex-col mb-4">
                             { ['paiment à la livraison', 'credit', 'paypal'].map((method) => (
