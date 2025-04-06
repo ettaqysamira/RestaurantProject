@@ -3,6 +3,8 @@ const mongoose = require('mongoose');
 const multer = require('multer');
 const cors = require('cors');
 const path = require('path');
+const authRoutes = require("./authRoutes.js");
+
 
 const app = express();
 
@@ -14,6 +16,8 @@ app.use(cors({
 
 
 app.use(express.json())
+app.use("/auth", authRoutes);
+
 app.use('/restoreImage', express.static('restoreImage'))
 
 const MONGO_URI = "mongodb+srv://samiraettaqy:samiraMongoose@cluster0.njz9h.mongodb.net/BistroRestaurant?retryWrites=true&w=majority&appName=Cluster0";
@@ -67,12 +71,80 @@ const Order = mongoose.model('Order', new mongoose.Schema({
     deliveryOption: { type: String, required: true },
     status: { 
         type: String, 
-        enum: [ "en attente", "en préparation" ,"prêt à servir" , "livrée" , "annulée"],
+        enum: [ "en attente", "en préparation" ,"prêt à servir" , "livrée" , "annulée", "accepter"],
         default:"en attente"
     },
-    
+    livreurId: { type: mongoose.Schema.Types.ObjectId, ref: 'Livreur', default: null }, 
+
     
 }))
+
+
+// schema Livreur
+const Livreur = mongoose.model('Livreur', new mongoose.Schema({
+    nom: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    telephone: { type: String, required: true },
+}));
+
+app.post('/api/livreurs', async (req, res) => {
+    const { nom, email, telephone } = req.body;
+
+    try {
+        const livreur = new Livreur({ nom, email, telephone });
+        await livreur.save();
+        res.status(201).json({ message: 'Livreur ajouté avec succès', livreur });
+    } catch (error) {
+        console.error("Erreur lors de l'ajout du livreur :", error);
+        res.status(500).json({ message: 'Erreur lors de l\'ajout du livreur', details: error.message });
+    }
+});
+
+app.get('/api/livreurs', async (req, res) => {
+    try {
+        const livreurs = await Livreur.find();
+        res.status(200).json(livreurs);
+    } catch (error) {
+        console.error("Erreur lors de la récupération des livreurs :", error);
+        res.status(500).json({ message: 'Erreur lors de la récupération des livreurs' });
+    }
+})
+
+
+app.put('/api/orders/:orderId/accept', async (req, res) => {
+    const { orderId } = req.params;
+    const { livreurId } = req.body;  
+
+    try {
+        const order = await Order.findById(orderId);
+
+        if (!order) {
+            return res.status(404).json({ error: 'Commande non trouvée' });
+        }
+
+        order.livreurId = livreurId;
+        order.status = 'accepter';
+
+        await order.save();
+
+        res.json({ message: 'Commande acceptée', order });
+    } catch (error) {
+        res.status(500).json({ error: 'Erreur lors de l\'acceptation de la commande' });
+    }
+})
+
+
+app.get('/api/orders/livreur/:livreurId', async (req, res) => {
+    try {
+        const orders = await Order.find({ livreurId: req.params.livreurId });
+        res.status(200).json(orders);
+    } catch (error) {
+        console.error("Erreur lors de la récupération des commandes pour ce livreur :", error);
+        res.status(500).json({ message: 'Erreur lors de la récupération des commandes pour ce livreur' });
+    }
+})
+
+
 app.post('/api/menu', upload.single('image'), (req, res) => {
     const price = parseFloat(req.body.price)
     
@@ -228,14 +300,24 @@ app.post('/api/orders', async (req, res) => {
 
 
 
-app.get('/api/orders', async (req, res) => {
+/*app.get('/api/orders', async (req, res) => {
     try {
         const orders = await Order.find()
         res.status(200).json(orders)
     } catch (error) {
         res.status(500).json({ error: "Erreur lors de la récupération des commandes" })
     }
-})
+})*/
+app.get('/api/orders', async (req, res) => {
+    try {
+        const orders = await Order.find({ livreurId: null });
+        res.status(200).json(orders);
+    } catch (error) {
+        console.error("Erreur lors de la récupération des commandes :", error);
+        res.status(500).json({ message: 'Erreur lors de la récupération des commandes' });
+    }
+});
+
 
 app.get('/api/orders/:id', async (req, res) => {
     try {

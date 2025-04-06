@@ -14,16 +14,12 @@ const Samira = () => {
         if (response.ok) {
           const orders = await response.json();
           
-          // Affichez la réponse de l'API pour vérifier la structure des données
           console.log(orders);
 
-          // Vérifiez si les commandes ont un champ ticket
           const filteredTickets = orders.filter(order => order.ticket);
 
-          // Affichez les tickets filtrés pour vérifier qu'ils existent
           console.log("Tickets filtrés:", filteredTickets);
 
-          // Assurez-vous que les tickets existent
           if (filteredTickets.length === 0) {
             console.log("Aucun ticket trouvé.");
           }
