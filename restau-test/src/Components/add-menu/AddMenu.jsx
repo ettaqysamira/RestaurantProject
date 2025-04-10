@@ -55,109 +55,105 @@ const AddToMenu = () => {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-black">
-      <form 
-        onSubmit={handleSubmit} 
-        className="w-full max-w-2xl p-8 bg-black text-white  shadow-lg border border-gray-700 my-5"
-      >
-        <h2 className="text-3xl font-semibold text-center mb-6">Ajouter un plat</h2>
-        {successMessage && <p className="text-green-500 text-center mb-4">{successMessage}</p>}
+    <div className=" py-9 flex justify-center items-center min-h-screen bg-[##161e2d]">
+     <form 
+  onSubmit={handleSubmit} 
+  className="w-full max-w-3xl p-8 bg-[#111827] text-white shadow-lg rounded-xl border border-gray-700"
+>
+  <h2 className="text-2xl font-bold text-center text-white mb-6">Ajouter un Plat</h2>
 
-        <div className="grid grid-cols-2 gap-4 ">
-        <input 
-  type="text" 
-  placeholder="Nom du plat" 
-  value={name} 
-  onChange={(e) => setName(e.target.value)} 
-  required 
-  className="my-input w-full p-3 border-[1px] border-white bg-[#1a1b1c] text-white  "
-/>
+  {successMessage && (
+    <p className="text-green-500 text-center mb-4">{successMessage}</p>
+  )}
 
+  <div className="grid grid-cols-2 gap-4">
+    <input 
+      type="text" 
+      placeholder="Nom du plat" 
+      value={name}
+      onChange={(e) => setName(e.target.value)}
+      className="bg-[#1f2937] p-3 rounded-lg border border-gray-600 placeholder-gray-400 text-white focus:outline-none focus:ring-2 focus:ring-yellow-500"
+      required
+    />
 
-          <select 
-            value={type} 
-            onChange={(e) => setType(e.target.value)} 
-            required 
-            className="my-input w-full p-3 border border-white bg-black text-white "
-          >
-            <option value="">Type de plat</option>
-            <option value="entrée">Entrée</option>
-            <option value="plat principal">Plat Principal</option>
-            <option value="dessert">Dessert</option>
-          </select>
-          
-          <input 
-            type="number" 
-            placeholder="Prix" 
-            value={price} 
-            onChange={(e) => setPrice(e.target.value)} 
-            required 
-            className="my-input w-full p-3 border-[1px] border-white bg-[#1a1b1c] text-white "
-          />
+    <select 
+      value={type} 
+      onChange={(e) => setType(e.target.value)}
+      className="bg-[#1f2937] p-3 rounded-lg border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-yellow-500"
+      required
+    >
+      <option value="">Type de plat</option>
+      <option value="entrée">Entrée</option>
+      <option value="plat principal">Plat Principal</option>
+      <option value="dessert">Dessert</option>
+    </select>
 
-          <input 
-            type="file" 
-            accept="image/*" 
-            onChange={(e) => setImageFile(e.target.files[0])} 
-            className="my-input w-full p-3 border border-white bg-black text-white "
-          />
-        </div>
+    <input 
+      type="number" 
+      placeholder="Prix" 
+      value={price}
+      onChange={(e) => setPrice(e.target.value)}
+      className="bg-[#1f2937] p-3 rounded-lg border border-gray-600 placeholder-gray-400 text-white focus:outline-none focus:ring-2 focus:ring-yellow-500"
+      required
+    />
 
-        <textarea 
-          placeholder="Description" 
-          value={description} 
-          onChange={(e) => setDescription(e.target.value)} 
-          className="my-input w-full p-3 border border-white bg-[#1a1b1c] text-white  mt-4"
-        />
+    <input 
+      type="file" 
+      accept="image/*"
+      onChange={(e) => setImageFile(e.target.files[0])}
+      className="bg-[#1f2937] p-3 rounded-lg border border-gray-600 text-white"
+    />
+  </div>
 
-        <input 
-          type="text" 
-          placeholder="Ingrédients (séparés par des virgules)" 
-          value={ingredients} 
-          onChange={(e) => setIngredients(e.target.value)} 
-          required 
-          className="my-input w-full p-3 border border-white bg-[#1a1b1c] text-white  mt-4"
-        />
+  <textarea 
+    placeholder="Description" 
+    value={description}
+    onChange={(e) => setDescription(e.target.value)}
+    className="bg-[#1f2937] p-3 rounded-lg border border-gray-600 placeholder-gray-400 text-white w-full mt-4 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+  />
 
-        <input 
-          type="text" 
-          placeholder="Restrictions alimentaires" 
-          value={dietaryRestrictions} 
-          onChange={(e) => setDietaryRestrictions(e.target.value)} 
-          className="my-input w-full p-3 border border-white bg-[#1a1b1c] text-white  mt-4"
-        />
+  <input 
+    type="text" 
+    placeholder="Ingrédients (séparés par des virgules)" 
+    value={ingredients}
+    onChange={(e) => setIngredients(e.target.value)}
+    className="bg-[#1f2937] p-3 rounded-lg border border-gray-600 text-white w-full mt-4"
+  />
 
-        <input 
-          type="text" 
-          placeholder="Allergènes" 
-          value={allergens} 
-          onChange={(e) => setAllergens(e.target.value)} 
-          className="my-input w-full p-3 border border-white bg-[#1a1b1c] text-white mt-4"
-        />
+  <input 
+    type="text" 
+    placeholder="Restrictions alimentaires" 
+    value={dietaryRestrictions}
+    onChange={(e) => setDietaryRestrictions(e.target.value)}
+    className="bg-[#1f2937] p-3 rounded-lg border border-gray-600 text-white w-full mt-4"
+  />
 
+  <input 
+    type="text" 
+    placeholder="Allergènes"
+    value={allergens}
+    onChange={(e) => setAllergens(e.target.value)}
+    className="bg-[#1f2937] p-3 rounded-lg border border-gray-600 text-white w-full mt-4"
+  />
 
+  <label className="flex items-center gap-2 mt-4 text-sm">
+    <input 
+      type="checkbox" 
+      checked={available}
+      onChange={(e) => setAvailable(e.target.checked)}
+      className="accent-yellow-500"
+    />
+    Disponible
+  </label>
 
+  <button 
+    type="submit"
+    className="w-full mt-6 bg-yellow-500 text-black font-semibold py-3 rounded-lg hover:bg-yellow-400 transition"
+  >
+    Ajouter un Plat
+  </button>
+</form>
 
-
-
-
-<label className="checkbox-container flex items-center mt-4 cursor-pointer">
-  <input type="checkbox"  checked={available} 
-        onChange={(e) => setAvailable(e.target.checked)} />
-  <span className="checkmark "></span>Disponible
-</label>
-
-
-
-    
-       
-<button type="submit" className="button w-full mt-8">
-  <div className="text w-full" >Add to Menu</div>
-</button>
-
-
-
-      </form>
     </div>
   )
 }

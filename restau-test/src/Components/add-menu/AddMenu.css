@@ -123,4 +123,15 @@
       transform: translate(-50%, -50%) rotate(45deg) scale(1);
     }
   }
+
+  input[type="file"]::-webkit-file-upload-button {
+    background: #374151;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin-right: 10px;
+    cursor: pointer;
+  }
+  
   

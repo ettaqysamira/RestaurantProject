@@ -4,10 +4,13 @@ import { useEffect, useState } from "react";
 import { MdAssignmentAdd } from "react-icons/md";
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
+import { useParams } from "react-router-dom";
 
 const PlatTable = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [menuItems, setMenuItems] = useState([]);
+    const {id}=useParams()
+    
 
     useEffect(() => {
         fetch("http://localhost:5000/api/menu")
@@ -128,7 +131,7 @@ const PlatTable = () => {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-700">
-                        {filteredItems.map((item) => (
+                        { filteredItems.map((item) => (
                             <motion.tr
                                 key={item._id}
                                 initial={{ opacity: 0 }}

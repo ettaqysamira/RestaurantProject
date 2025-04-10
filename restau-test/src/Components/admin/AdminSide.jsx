@@ -1,7 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 
 import Sidebar from "../structure/Sidebar";
-import EditMenu from "../add-menu/EditMenu";
 import OverviewPage from "../../pages/OverviewPage";
 import MenuPage from "../../pages/MenuPage";
 import UsersPage from "../../pages/UsersPage";
@@ -11,6 +10,7 @@ import AnalyticsPage from "../../pages/AnalyticsPage";
 import AddDash from "../../pages/AddDash";
 import SettingsPage from "../../pages/SettingsPage";
 import AddUsers from "../../pages/AddUser";
+import EditMenu from "../add-menu/EditMenu";
 function AdminSide() {
 	return (
 		<div className='flex h-screen bg-gray-900 text-gray-100 overflow-hidden'>
