@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom'; 
 
 const Livreur = () => {
-    const { livreurId } = useParams();  
+    const {id} = useParams();  
     const [orders, setOrders] = useState([]);
     const [selectedOrder, setSelectedOrder] = useState(null);
 
@@ -10,13 +10,15 @@ const Livreur = () => {
 
     useEffect(() => {
         const fetchOrders = async () => {
-            try {
-                const response = await fetch("http://localhost:5000/api/orders")
+            try {3
+                const response = await fetch("http://localhost:5000/api/orders/encours")
                 const data = await response.json()
                 const deliveryOrders = data.filter(order => 
-                    (order.deliveryOption === "delivery" && order.status === "prêt à servir") || 
-                    (order.livreurId === livreurId)  
+                    order.deliveryOption === "delivery" && (
+                        (order.status === "prêt à servir") || 
+                        (order.status === "en cours" && order.livreurId === id))
                 );
+                
                 setOrders(deliveryOrders)
             } catch (error) {
                 console.error("Erreur lors de la récupération des commandes :", error)
@@ -24,7 +26,7 @@ const Livreur = () => {
         }
 
         fetchOrders()
-    }, [livreurId])
+    }, [id])
    
     
 
@@ -65,22 +67,26 @@ const Livreur = () => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ livreurId }) 
+                body: JSON.stringify({ livreurId: id, status: "en cours" }),
             });
     
             if (response.ok) {
-                const acceptedOrder = await response.json();
+                const updatedOrder = await response.json();
     
-                setOrders(orders.map(order =>
-                    order._id === orderId ? acceptedOrder.order : order
-                ));
+                setOrders(prevOrders =>
+                    prevOrders.map(order =>
+                        order._id === orderId
+                            ? { ...order, status: "en cours", livreurId: id }
+                            : order
+                    )
+                );
             } else {
                 console.error("Erreur lors de l'acceptation de la commande :", response.statusText);
             }
         } catch (error) {
             console.error("Erreur lors de l'acceptation de la commande :", error);
         }
-    }
+    };
     
 
     return (

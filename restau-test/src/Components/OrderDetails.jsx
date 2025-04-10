@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Link } from 'react-router-dom';
+import html2pdf from 'html2pdf.js';
+
 
 const OrderDetails = () => {
   const { id } = useParams();
@@ -20,8 +22,23 @@ const OrderDetails = () => {
   const tax = order.tax || 0
   const finalTotal = subtotal - discount
 
+
+  const generatePDF = () => {
+    const element = document.getElementById('order-details');
+    const opt = {
+      margin:       0.5,
+      filename:     `commande_${order.ticket.ticketNumber}.pdf`,
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { scale: 2 },
+      jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+    };
+  
+    html2pdf().set(opt).from(element).save();
+  };
+
   return (
     <div className="container mx-auto p-4 mt-16">
+      <div id="order-details">
       <div className="bg-yellow-50 shadow-lg rounded-t-lg p-4">
         <label className="block text-black font-bold text-sm mb-2">
           BISTRO Restaurant
@@ -77,11 +94,12 @@ const OrderDetails = () => {
           Total : {finalTotal.toFixed(2)} MAD
         </label>
         <Link to="/cuisinier/tickets">
-        <button className="bg-black text-white rounded-md px-6 h-9 shadow-md hover:bg-black transition duration-200">
+        <button onClick={generatePDF} className="bg-black flex justify-center items-center text-white rounded-md px-6 h-9 shadow-md hover:bg-black transition duration-200">
           OK
         </button>
         </Link>
        
+      </div>
       </div>
     </div>
   )

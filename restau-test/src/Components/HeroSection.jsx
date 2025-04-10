@@ -4,8 +4,15 @@ import { ShoppingCart, Info } from "lucide-react";
 import { Tickets } from 'lucide-react';
 import { ChefHat } from 'lucide-react';
 import '../ticket.css'
+import { useParams } from "react-router-dom";
+
 
 const HeroSection = () => {
+  const { id } = useParams();
+  const name = localStorage.getItem("name");
+  const userId = localStorage.getItem("userId");
+
+
   return (
     <div className="relative flex flex-col md:flex-row items-center bg-black text-white min-h-screen">
      
@@ -22,7 +29,7 @@ const HeroSection = () => {
           C
         </h1>
 
-        <h2 className="text-4xl font-light uppercase tracking-wide">L'Art de la Cuisine</h2>
+        <h2 className="text-4xl font-light uppercase tracking-wide">L'Art de Cuisine avec {name} </h2>
         <p className="mt-4 text-gray-400">
         Maîtrisez chaque ingrédient, perfectionnez chaque plat et offrez une expérience inoubliable.  
         Ici, la passion et le savoir-faire se rencontrent pour sublimer chaque assiette.
@@ -40,7 +47,7 @@ const HeroSection = () => {
         </button>
 
        
-        <Link to="/cuisinier/tickets">
+        <Link to={`/cuisinier/${userId}/tickets`} >
         <button className=" ticket flex items-center  text-black ">
           <Tickets size={18} className="mr-2" />
           Ticket du commande

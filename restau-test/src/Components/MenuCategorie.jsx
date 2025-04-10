@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Diamond } from 'lucide-react';
+import bg1 from "../assets/bg1.png";
+import bg2 from "../assets/bg2.png";
+
 
 const MenuCategorie = ({ addToOrder }) => {
   const [menuItems, setMenuItems] = useState([])
@@ -45,15 +48,24 @@ const MenuCategorie = ({ addToOrder }) => {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white p-4 sm:p-8">
-      <div className="flex flex-wrap justify-center space-x-2 sm:space-x-4 text-xs sm:text-lg uppercase border-b border-customColor pb-4 mt-20">
+    
+    <div className="relative min-h-screen bg-[#171819] text-white p-4 sm:p-8 overflow-hidden">
+      <div className="z-1">
+      <img
+  src={bg1}
+  alt="bg1"
+  className="absolute left-0 top-0 h-full object-cover pointer-events-none w-1/2 animate-floathaut z-0 "
+/>
+<img
+  src={bg2}
+  alt="bg2"
+  className="absolute right-0 buttom-0  object-cover  z-0 w-1/3 animate-floathaut"
+/></div>
+
+      <div className="relative flex flex-wrap justify-center space-x-2 sm:space-x-4 text-xs sm:text-lg uppercase border-b border-t border-customColor pb-4 pt-4  z-10">
         {["all", "entrée", "plat principal", "dessert", "boisson"].map((category, index, array) => (
           <React.Fragment key={category}>
-            <button
-              className={`px-2 sm:px-4 py-1 ${
-                activeCategory === category ? "text-white" : "text-gray-400"
-              }`}
-              onClick={() => {
+            <button className={`px-2 sm:px-4 py-1 ${activeCategory === category ? "text-white" : "text-gray-400 z-10 " }`}onClick={() => {
                 setActiveCategory(category)
                 setShowAll(false)
               }}

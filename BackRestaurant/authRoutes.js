@@ -5,8 +5,9 @@ const User = require("./userModel.js");
 const JWT_SECRET = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30";
 
 const router = express.Router();
-const adminEmail = "ettaqysamira@admin.com";
-const adminPassword = "admin1234"; 
+
+
+
 router.post("/signup", async (req, res) => {
   const { name, email, password, role, isPredefined } = req.body;
 
@@ -34,44 +35,44 @@ router.post("/signup", async (req, res) => {
   }
 });
 
-
-
 router.post("/signin", async (req, res) => {
   const { email, password } = req.body;
 
+  // Vérification que l'email et le mot de passe sont présents dans la requête
   if (!email || !password) {
     return res.status(400).json({ message: "Email et mot de passe sont requis" });
   }
 
-  // Vérification si c'est un admin
-  if (email === adminEmail && password === adminPassword) {
-    const token = jwt.sign({ role: "admin" }, JWT_SECRET, { expiresIn: "1h" });
+  try {
+    // Recherche de l'utilisateur dans la base de données
+    const user = await User.findOne({ email });
 
-    return res.json({
+    // Si l'utilisateur n'existe pas ou que le mot de passe ne correspond pas
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      return res.status(401).json({ message: "Identifiants incorrects" });
+    }
+
+    // Génération d'un token JWT pour l'utilisateur
+    const token = jwt.sign(
+      { id: user._id, role: user.role },
+      JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+
+    // Réponse avec le token, le rôle et les autres informations utiles
+    res.json({
       token,
-      role: "admin",
-      isPredefined: true, // Indiquer que c'est un accès administrateur prédéfini
+      role: user.role,
+      userId: user._id,
+      name: user.name,
     });
+
+  } catch (error) {
+    console.error("Erreur lors de la connexion :", error);
+    res.status(500).json({ message: "Erreur serveur" });
   }
-
-  // Recherche de l'utilisateur dans la base de données pour les autres utilisateurs
-  const user = await User.findOne({ email });
-
-  if (!user || !(await bcrypt.compare(password, user.password))) {
-    return res.status(401).json({ message: "Identifiants incorrects" });
-  }
-
-  // Création du token JWT pour les utilisateurs standards
-  const token = jwt.sign(
-    { id: user._id, role: user.role },
-    JWT_SECRET,
-    { expiresIn: "1h" }
-  );
-
-  const isPredefined = user.role === "admin";
-
-  res.json({ token, role: user.role, isPredefined });
 });
+
 
 
 module.exports = router;

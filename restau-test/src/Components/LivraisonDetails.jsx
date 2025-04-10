@@ -102,7 +102,7 @@ const LivraisonDetails = () => {
     }
 
     return (
-        <div className="flex justify-center items-center h-screen bg-black text-white p-8 pt-36">
+        <div className="flex justify-center items-center h-screen bg-black text-white p-8 ">
             <form onSubmit={handleSubmit} className="w-full max-w-2xl p-8 bg-[#1a1b1c] shadow-lg border border-gray-700">
                 {successMessage && <p className="text-green-500 text-center mb-4">{successMessage}</p>}
                 

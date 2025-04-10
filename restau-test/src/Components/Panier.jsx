@@ -33,7 +33,7 @@ const Panier = () => {
     setDeliveryOption(option);
     console.log("Option sélectionnée :", option);
     if (option === "delivery") {
-        navigate("/informations-livraison", { state: { cartItems, subtotal } })
+        navigate("/Panier/informations-livraison", { state: { cartItems, subtotal } })
     }
 };
 
@@ -105,7 +105,7 @@ const Panier = () => {
   };
 
   return (
-    <div className="flex flex-col md:flex-row justify-center p-8 bg-gray-100 mt-20">
+    <div className="flex flex-col md:flex-row justify-center p-8 bg-[#171819] h-screen">
       <div className="w-full md:w-3/5 bg-white p-6 rounded-lg shadow-lg mb-6 md:mb-0">
         <h2 className="text-2xl font-bold mb-4">Ton Panier</h2>
         <div className="flex flex-col md:flex-row justify-center gap-5 mb-4">
@@ -229,7 +229,7 @@ const Panier = () => {
             <span>Sous-total</span>
             <span className="font-bold">{subtotal.toFixed(2)} MAD</span>
           </div>
-          <button onClick={handleCheckout} className="w-full mt-4 bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition">
+          <button onClick={handleCheckout} className="w-full mt-4 bg-customColor text-white py-2 rounded hover:bg-blue-600 transition">
             Passer la commande
           </button>
         </div>

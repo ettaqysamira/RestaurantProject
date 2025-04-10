@@ -4,6 +4,10 @@ const multer = require('multer');
 const cors = require('cors');
 const path = require('path');
 const authRoutes = require("./authRoutes.js");
+const User = require("./userModel.js");
+const bcrypt = require("bcryptjs");
+
+
 
 
 const app = express();
@@ -26,6 +30,7 @@ const MONGO_URI = "mongodb+srv://samiraettaqy:samiraMongoose@cluster0.njz9h.mong
 mongoose.connect(MONGO_URI)
   .then(() => {
     console.log("Connecté à MongoDB avec succès !")
+    createAdminIfNotExists();
   })
   .catch(err => {
     console.error("Erreur de connexion à MongoDB :", err)
@@ -71,10 +76,10 @@ const Order = mongoose.model('Order', new mongoose.Schema({
     deliveryOption: { type: String, required: true },
     status: { 
         type: String, 
-        enum: [ "en attente", "en préparation" ,"prêt à servir" , "livrée" , "annulée", "accepter"],
+        enum: [ "en attente", "en préparation" ,"prêt à servir" , "livrée" , "annulée", "en cours"],
         default:"en attente"
     },
-    livreurId: { type: mongoose.Schema.Types.ObjectId, ref: 'Livreur', default: null }, 
+    livreurId: { type: String , default: null }, 
 
     
 }))
@@ -123,7 +128,7 @@ app.put('/api/orders/:orderId/accept', async (req, res) => {
         }
 
         order.livreurId = livreurId;
-        order.status = 'accepter';
+        order.status = 'en cours';
 
         await order.save();
 
@@ -310,7 +315,7 @@ app.post('/api/orders', async (req, res) => {
 })*/
 app.get('/api/orders', async (req, res) => {
     try {
-        const orders = await Order.find({ livreurId: null });
+        const orders = await Order.find({});
         res.status(200).json(orders);
     } catch (error) {
         console.error("Erreur lors de la récupération des commandes :", error);
@@ -318,6 +323,21 @@ app.get('/api/orders', async (req, res) => {
     }
 });
 
+app.get('/api/orders/encours', async (req, res) => {
+    try {
+        const orders = await Order.find({
+            deliveryOption: "delivery",
+            $or: [
+                { status: "prêt à servir" },
+                { status: "en cours" }  
+            ]
+        });
+        res.status(200).json(orders);
+    } catch (error) {
+        console.error("Erreur lors de la récupération des commandes :", error);
+        res.status(500).json({ message: 'Erreur lors de la récupération des commandes' });
+    }
+})
 
 app.get('/api/orders/:id', async (req, res) => {
     try {
@@ -382,6 +402,75 @@ app.put('/api/orders/:id/status', async (req, res) => {
     }
   })
   
+
+  app.post('/api/users', async (req, res) => {
+    const { name, email, password, role, isPredefined } = req.body;
+
+    if (!name || !email || !password || !role) {
+        return res.status(400).json({ message: "Veuillez remplir tous les champs obligatoires" });
+    }
+
+    try {
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            return res.status(400).json({ message: "Un utilisateur avec cet email existe déjà." });
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);  
+
+        const newUser = new User({
+            name,
+            email,
+            password: hashedPassword,  
+            role,
+            isPredefined,
+        });
+
+        await newUser.save();
+        res.status(201).json({ message: "Utilisateur ajouté avec succès", user: newUser });
+    } catch (error) {
+        console.error("Erreur lors de l'ajout de l'utilisateur :", error);
+        res.status(500).json({ message: "Erreur serveur lors de l'ajout de l'utilisateur", details: error.message });
+    }
+});
+app.get('/api/users', async (req, res) => {
+    try {
+      const users = await User.find({});
+      
+      res.status(200).json(users);
+    } catch (error) {
+      console.error("Erreur lors de la récupération des utilisateurs :", error);
+      res.status(500).json({ message: "Erreur lors de la récupération des utilisateurs" });
+    }
+  })
+
+app.get('/api/users/count', async (req, res) => {
+	try {
+		const totalUtilisateurs = await User.countDocuments();
+		res.status(200).json({ totalUtilisateurs });
+	} catch (error) {
+		console.error("Erreur lors du comptage des utilisateurs :", error);
+		res.status(500).json({ message: "Erreur serveur" });
+	}
+});
+
+
+const createAdminIfNotExists = async () => {
+    const existingAdmin = await User.findOne({ role: "admin" });
+    if (!existingAdmin) {
+      const hashedPassword = await bcrypt.hash("admin1234", 10);
+      const admin = new User({
+        name: "Samira Admin",
+        email: "ettaqysamira@admin.com",
+        password: hashedPassword,
+        role: "admin",
+      });
+      await admin.save();
+      console.log("Administrateur créé automatiquement au démarrage.");
+    } else {
+      console.log("Un administrateur existe déjà.");
+    }
+  };
 
 
 const PORT = process.env.PORT || 5000

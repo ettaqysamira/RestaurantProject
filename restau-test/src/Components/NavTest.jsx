@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import AOS from "aos";
 import "aos/dist/aos.css";
-import home1 from "../assets/home1.jpg";
-import home2 from "../assets/home2.jpg";
+import home2 from "../assets/home1.jpg";
+import home1 from "../assets/orig.jpeg";
 import { Link } from 'react-router-dom';
 
 const slides = [

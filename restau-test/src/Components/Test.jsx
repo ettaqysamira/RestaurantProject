@@ -275,9 +275,9 @@ const Test = () => {
             <h1 className="text-3xl font-libre-caslon text-customColor my-5" >Subscribe</h1>
             <p  className="text-[#6c6a62] text-sm font-noah ">Want to be notified when we launch a new template or an udpate. Just sign up and we'll send you a notification by email.</p>
 
-            <div class="flex border border-customColor w-full p-1 h-11 my-5">
+            <div className="flex border border-customColor w-full p-1 h-11 my-5">
         <input type="email" placeholder="Your email"   className="bg-[#1a1a1a] text-white px-2 py-2 outline-none flex-1 placeholder-[#6c6a62]  w-[60%]" />
-        <button class="bg-[#c9a26a] text-white font-noah  hover:bg-[#b38b50] w-[32%] text-xs  uppercase tracking-[0.3em] flex items-center justify-center text-[10px]">Subscribe</button>
+        <button className="bg-[#c9a26a] text-white font-noah  hover:bg-[#b38b50] w-[32%] text-xs  uppercase tracking-[0.3em] flex items-center justify-center text-[10px]">Subscribe</button>
     </div>
    
         </div>

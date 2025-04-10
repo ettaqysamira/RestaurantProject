@@ -7,6 +7,8 @@ import "../TesterMenu.css";
 import backgroundImage from "../assets/contactUs.jpg";
 import { IoIosArrowBack } from "react-icons/io";
 import { IoIosArrowForward } from "react-icons/io";
+import { Link } from 'react-router-dom';
+
 
 
 const PrevArrow = (props) => {
@@ -90,7 +92,9 @@ const TesterMenu = () => {
                        <h5>Current Menu</h5>
                        <p className="">{item.name}</p>
                        <p>{item.description}</p>
-                      <button className="px-4 py-2 bg-yellow-500 text-black font-bold rounded">Make an Order</button>
+                       <Link to="/Panier">
+                       <button className="px-4 py-2 bg-[#808000] text-black font-bold">Commander</button>
+                       </Link>
                     </div>
 
                   </div>

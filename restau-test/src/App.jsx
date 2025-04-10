@@ -9,7 +9,6 @@ import Localisation from './Components/Localisation';
 import Horaire from './Components/Horaire';
 import MenuCategorie from './Components/MenuCategorie';
 import Panier from './Components/Panier';
-import Confirmation from './Components/Confirmation';
 import TicketsList from './Components/TicketsList';
 import HeroSection from './Components/HeroSection';
 import { useState } from "react";
@@ -22,7 +21,15 @@ import AjouterLivreur from './Components/AjouterLivreur';
 import LivreurTest from './Components/LivreurTest';
 import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
-import AdminDashboard from './Components/AdminDashboard';
+import PrivateRoute from './Components/PrivateRoute';
+import AdminSide from './Components/admin/AdminSide';
+import TesterMenu from './Components/TesterMenu';
+import NewNav from './Components/NewNav';
+import LivreurSide from './Components/livreur/LivreurSide';
+import TicketLivree from './Components/livreur/TicketLivree';
+import NavLivreur from './Components/livreur/NavLivreur';
+import { AuthProvider } from './context/AuthUseContext';
+
 function App() {
   const [orderItems, setOrderItems] = useState([]);
 
@@ -32,25 +39,29 @@ function App() {
 
   return (
     <BrowserRouter>
+    <AuthProvider>
       <Layout orderItems={orderItems} addToOrder={addToOrder} />
+      </AuthProvider>
     </BrowserRouter>
   );
 }
 
 function Layout({ orderItems, addToOrder }) {
   const location = useLocation()
-  const HideNavBar = location.pathname.startsWith('/cuisinier') || location.pathname.startsWith('/livreur') || location.pathname.startsWith('/signup') || location.pathname.startsWith('/login') ||  location.pathname.startsWith('/admin/dashboard')
+  const HideNavBar = location.pathname.startsWith('/cuisinier') || location.pathname.startsWith('/livreur') || location.pathname.startsWith('/signup') || location.pathname.startsWith('/login') ||  location.pathname.startsWith('/admin') ||  location.pathname.startsWith('/menucategorie') ||  location.pathname.startsWith('/Panier') || location.pathname.startsWith('/Panier/informations-livraison')
+  
 
 
   return (
     <>
-       {!HideNavBar && <NavBar />}
-
+       {!HideNavBar && <NewNav />}
+       
       <Routes>
         <Route path='/' element={
           <>
             <HeroSlider />
             <RestaurantSection />
+            <TesterMenu/>
             <ContactSection />
             <Localisation />
             <Reservation />
@@ -58,24 +69,62 @@ function Layout({ orderItems, addToOrder }) {
             <Footer />
           </>
         } />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<SignUp />} />
+        
         <Route path='/menucategorie' element={<MenuCategorie addToOrder={addToOrder} />} />
         <Route path='/contact' element={<ContactSection />} />
         <Route path='/about' element={<RestaurantSection />} />
         <Route path='/reservation' element={<Reservation />} />
         <Route path='/Panier' element={<Panier />} />
-        <Route path="/confirmation" element={<Confirmation />} />
-        <Route path='/cuisinier' element={<HeroSection />}/>
-            <Route path='/cuisinier/tickets' element={<TicketsList />} />
+            <Route path='/cuisinier/:id/tickets' element={<TicketsList />} />
             <Route path='/tick' element={<TicketsList2 />} />
-            <Route path="/order-details/:id" element={<OrderDetails />} />
+            <Route path="/cuisinier/:id/tickets/order-details/:id" element={<OrderDetails />} />
             <Route path="/samira" element={<Samira />} />
-            <Route path="/livreur/:id" element={<Livreur />} />
             <Route path="/ajouter-livreur" element={ <AjouterLivreur />} />
-            <Route path="/admin/dashboard" element={ <AdminDashboard />} />
+            <Route path="/ajouter-livreur" element={ <AjouterLivreur />} />
 
-            <Route path="/informations-livraison" element={<LivraisonDetails />} />
+
+
+
+           
+          <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<SignUp />} />
+
+          <Route
+            path="/admin/*"
+            element={
+              <PrivateRoute requiredRole="admin">
+                <AdminSide />
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/livreur/:id/*"
+            element={
+              <PrivateRoute requiredRole="livreur">
+                <> <NavLivreur/> <LivreurSide /></>
+              </PrivateRoute>
+            }
+          />
+         <Route
+            path="/cuisinier/:id/*"
+            element={
+              <PrivateRoute requiredRole="cuisinier">
+                <> <HeroSection/></>
+              </PrivateRoute>
+            }
+          />
+     
+
+      
+
+          
+
+
+            <Route path="/Panier/informations-livraison" element={<LivraisonDetails />} />
+            <Route path="/livreur/:id/ticket-details-livrée" element={<><NavLivreur/>< TicketLivree/></>} />
+
+
 
       </Routes>
     </>
