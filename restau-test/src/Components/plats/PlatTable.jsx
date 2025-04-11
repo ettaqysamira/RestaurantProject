@@ -158,7 +158,7 @@ const PlatTable = () => {
                                     {item.available ? "Disponible" : "Indisponible"}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300 flex gap-3 justify-center items-center mt-2">
-                                <Link to={`/edit-menu/${item._id}`}>
+                                <Link to={`/admin/edit-menu/${item._id}`}>
     <button className="text-indigo-400 hover:text-indigo-300 mt-1">
         < Edit size={18} />
     </button>

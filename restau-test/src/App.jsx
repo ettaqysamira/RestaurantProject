@@ -29,6 +29,7 @@ import LivreurSide from './Components/livreur/LivreurSide';
 import TicketLivree from './Components/livreur/TicketLivree';
 import NavLivreur from './Components/livreur/NavLivreur';
 import { AuthProvider } from './context/AuthUseContext';
+import CaissierSide from './Components/caissier/CaissierSide';
 
 function App() {
   const [orderItems, setOrderItems] = useState([]);
@@ -48,7 +49,7 @@ function App() {
 
 function Layout({ orderItems, addToOrder }) {
   const location = useLocation()
-  const HideNavBar = location.pathname.startsWith('/cuisinier') || location.pathname.startsWith('/livreur') || location.pathname.startsWith('/signup') || location.pathname.startsWith('/login') ||  location.pathname.startsWith('/admin') ||  location.pathname.startsWith('/menucategorie') ||  location.pathname.startsWith('/Panier') || location.pathname.startsWith('/Panier/informations-livraison')
+  const HideNavBar = location.pathname.startsWith('/cuisinier') || location.pathname.startsWith('/livreur') || location.pathname.startsWith('/signup') || location.pathname.startsWith('/login') ||  location.pathname.startsWith('/admin') ||  location.pathname.startsWith('/menucategorie') ||  location.pathname.startsWith('/Panier') || location.pathname.startsWith('/Panier/informations-livraison') || location.pathname.startsWith('/caissier')
   
 
 
@@ -79,7 +80,6 @@ function Layout({ orderItems, addToOrder }) {
             <Route path='/tick' element={<TicketsList2 />} />
             <Route path="/cuisinier/:id/tickets/order-details/:id" element={<OrderDetails />} />
             <Route path="/samira" element={<Samira />} />
-            <Route path="/ajouter-livreur" element={ <AjouterLivreur />} />
             <Route path="/ajouter-livreur" element={ <AjouterLivreur />} />
 
 
@@ -114,7 +114,11 @@ function Layout({ orderItems, addToOrder }) {
               </PrivateRoute>
             }
           />
-     
+
+        <Route path="/caissier/*" element={<CaissierSide />} />
+
+
+         
 
       
 

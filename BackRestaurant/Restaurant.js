@@ -76,7 +76,7 @@ const Order = mongoose.model('Order', new mongoose.Schema({
     deliveryOption: { type: String, required: true },
     status: { 
         type: String, 
-        enum: [ "en attente", "en préparation" ,"prêt à servir" , "livrée" , "annulée", "en cours"],
+        enum: [ "en attente", "en préparation" ,"prêt à servir" , "livrée" , "annulée", "en cours", "payée"],
         default:"en attente"
     },
     livreurId: { type: String , default: null }, 
@@ -323,6 +323,22 @@ app.get('/api/orders', async (req, res) => {
     }
 });
 
+app.get('/api/orders/caissier', async (req, res) => {
+    try {
+        const orders = await Order.find({
+            $or: [
+                { deliveryOption: 'delivery', status: 'livrée' }, 
+                { deliveryOption: 'takeout', status: 'prêt à servir' },
+                { deliveryOption: 'dine-in', status: 'prêt à servir' } 
+            ]
+             });
+        res.status(200).json(orders);
+    } catch (error) {
+        console.error("Erreur lors de la récupération des commandes :", error);
+        res.status(500).json({ message: 'Erreur lors de la récupération des commandes' });
+    }
+});
+
 app.get('/api/orders/encours', async (req, res) => {
     try {
         const orders = await Order.find({
@@ -403,7 +419,7 @@ app.put('/api/orders/:id/status', async (req, res) => {
   })
   
 
-  app.post('/api/users', async (req, res) => {
+app.post('/api/users', async (req, res) => {
     const { name, email, password, role, isPredefined } = req.body;
 
     if (!name || !email || !password || !role) {
@@ -453,6 +469,11 @@ app.get('/api/users/count', async (req, res) => {
 		res.status(500).json({ message: "Erreur serveur" });
 	}
 });
+
+//dans caissier
+
+  
+
 
 
 const createAdminIfNotExists = async () => {
