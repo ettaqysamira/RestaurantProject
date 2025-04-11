@@ -55,12 +55,12 @@ const AddToMenu = () => {
   };
 
   return (
-    <div className=" py-9 flex justify-center items-center min-h-screen bg-[##161e2d]">
+    <div className=" py-9 flex justify-center items-center min-h-screen bg-[#161e2d]">
      <form 
   onSubmit={handleSubmit} 
   className="w-full max-w-3xl p-8 bg-[#111827] text-white shadow-lg rounded-xl border border-gray-700"
 >
-  <h2 className="text-2xl font-bold text-center text-white mb-6">Ajouter un Plat</h2>
+  <h2 className="text-2xl font-bold text-center text-white mb-6">Ajouter Plat</h2>
 
   {successMessage && (
     <p className="text-green-500 text-center mb-4">{successMessage}</p>
@@ -141,16 +141,16 @@ const AddToMenu = () => {
       type="checkbox" 
       checked={available}
       onChange={(e) => setAvailable(e.target.checked)}
-      className="accent-yellow-500"
+      className="accent-[#808000]"
     />
     Disponible
   </label>
 
   <button 
     type="submit"
-    className="w-full mt-6 bg-yellow-500 text-black font-semibold py-3 rounded-lg hover:bg-yellow-400 transition"
+    className="w-full mt-6 bg-customColor text-black font-semibold py-3 rounded-lg hover:bg-customColor transition"
   >
-    Ajouter un Plat
+    Ajouter Plat
   </button>
 </form>
 

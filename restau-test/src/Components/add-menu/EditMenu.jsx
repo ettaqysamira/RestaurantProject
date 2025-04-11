@@ -79,13 +79,13 @@ const EditMenu = () => {
   };
 
   return (
-        <div>
-             <div className=" relative top-5 py-9 flex justify-center items-center min-h-screen bg-[#161e2d] ">
+        <div className="overflow-auto ">
+             <div className="relative py-9 flex justify-center items-center min-h-screen bg-[#161e2d] w-screen ">
       <form
         onSubmit={handleSubmit}
-        className="  w-full max-w-3xl p-8 bg-[#111827] text-white shadow-lg rounded-xl border border-gray-700"
+        className="relative right-[7.5rem] w-full max-w-3xl p-8 bg-[#111827] text-white shadow-lg rounded-xl border border-gray-700"
       >
-        <h2 className="text-2xl font-bold text-center text-white mb-6">Modifier le Plat</h2>
+        <h2 className="text-2xl font-bold text-center text-white mb-6">Modifier Plat</h2>
 
         <div className="grid grid-cols-2 gap-4">
           <input
@@ -170,16 +170,16 @@ const EditMenu = () => {
             name="available"
             checked={menuItem.available}
             onChange={handleChange}
-            className="accent-yellow-500"
+            className="accent-[#808000]"
           />
           Disponible
         </label>
 
         <button
           type="submit"
-          className="w-full mt-6 bg-yellow-500 text-black font-semibold py-3 rounded-lg hover:bg-yellow-400 transition"
+          className="w-full mt-6 bg-customColor text-black font-semibold py-3 rounded-lg hover:bg-customColor transition"
         >
-          Modifier le Plat
+          Modifier Plat
         </button>
       </form>
     </div>
