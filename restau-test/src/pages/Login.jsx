@@ -34,7 +34,12 @@ function SignIn() {
         navigate(`/cuisinier/${userId}`);
       } else if (role === "livreur") {
         navigate(`/livreur/${userId}`);
-      } else {
+        
+      } else if (role === "caissier") {
+        navigate(`/caissier`);
+        
+      }
+      else {
         navigate("/");
       }
 

@@ -114,16 +114,14 @@ function Layout({ orderItems, addToOrder }) {
               </PrivateRoute>
             }
           />
-
-        <Route path="/caissier/*" element={<CaissierSide />} />
-
-
-         
-
-      
-
-          
-
+         <Route
+            path="/caissier/*"
+            element={
+              <PrivateRoute requiredRole="caissier">
+                <> <CaissierSide/></>
+              </PrivateRoute>
+            }
+          />
 
             <Route path="/Panier/informations-livraison" element={<LivraisonDetails />} />
             <Route path="/livreur/:id/ticket-details-livrée" element={<><NavLivreur/>< TicketLivree/></>} />

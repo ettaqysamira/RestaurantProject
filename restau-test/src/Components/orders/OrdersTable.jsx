@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Search, Eye } from "lucide-react";
 import OrderDistribution from './OrderDistribution'; 
+import { Trash2 } from 'lucide-react';
+
 
 const OrdersTable = () => {
 	const [searchTerm, setSearchTerm] = useState("");
@@ -139,7 +141,7 @@ const OrdersTable = () => {
 									<td className='px-6 py-4 whitespace-nowrap text-sm text-gray-300'>{new Date(order.ticket.timestamp).toLocaleString()}</td>
 									<td className='px-6 py-4 whitespace-nowrap text-sm text-gray-300'>
 										<button className='text-indigo-400 hover:text-indigo-300 mr-2'>
-											<Eye size={18} />
+											<Trash2  size={18} />
 										</button>
 									</td>
 								</motion.tr>
