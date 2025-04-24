@@ -1,25 +1,33 @@
-.bg-black {
-    background-color: rgba(0, 0, 0, 0.5); 
-}
+
 .smoke {
     position: absolute;
-    width: 20px;
-    height: 20px;
-    background: radial-gradient(white, transparent 60%);
     border-radius: 50%;
-    opacity: 0.5;
     pointer-events: none;
-    animation: smokeUp 1.2s ease-out forwards;
     z-index: 9999;
+    opacity: 0.25;
+    background: radial-gradient(rgba(255, 255, 255, 0.4), transparent 70%);
+    filter: blur(8px) brightness(1.1);
+    mix-blend-mode: screen;
+    animation: floatUp ease-out forwards;
   }
   
-  @keyframes smokeUp {
+  @keyframes floatUp {
     0% {
-      transform: scale(1) translateY(0);
-      opacity: 0.5;
+      transform: scale(1) translateY(0) rotate(0deg);
+      opacity: 0.25;
+    }
+    40% {
+      transform: scale(1.4) translateY(-40px) rotate(10deg);
+      opacity: 0.2;
+    }
+    70% {
+      transform: scale(1.7) translateY(-80px) rotate(20deg);
+      opacity: 0.1;
     }
     100% {
-      transform: scale(3) translateY(-80px);
+      transform: scale(2) translateY(-120px) rotate(30deg);
       opacity: 0;
     }
   }
+  
+  

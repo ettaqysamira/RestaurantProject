@@ -63,7 +63,7 @@ function Layout({ orderItems, addToOrder }) {
       <Routes>
         <Route path='/' element={
           <>
-            <CursorEffect/>
+          <CursorEffect/>
             <HeroSlider />
             <RestaurantSection />
             <TesterMenu/>
