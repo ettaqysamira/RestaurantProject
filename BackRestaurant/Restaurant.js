@@ -76,7 +76,7 @@ const Order = mongoose.model('Order', new mongoose.Schema({
     deliveryOption: { type: String, required: true },
     status: { 
         type: String, 
-        enum: [ "en attente", "en préparation" ,"prêt à servir" , "livrée" , "annulée", "en cours", "payée"],
+        enum: [ "en attente", "en préparation" ,"prêt à servir" , "livrée" , "annulée", "en cours", "payé"],
         default:"en attente"
     },
     livreurId: { type: String , default: null }, 
@@ -471,6 +471,22 @@ app.get('/api/users/count', async (req, res) => {
 });
 
 //dans caissier
+
+app.put("/api/orders/:id/pay", async (req, res) => {
+    const { id } = req.params;
+  
+    try {
+      const updatedOrder = await Order.findByIdAndUpdate(id, {
+        status: "payé",
+      }, { new: true });
+  
+      if (!updatedOrder) return res.status(404).json({ message: "Commande introuvable" });
+  
+      res.json(updatedOrder);
+    } catch (err) {
+      res.status(500).json({ message: "Erreur serveur", error: err });
+    }
+  })
 
   
 

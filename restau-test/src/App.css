@@ -1,3 +1,25 @@
 .bg-black {
     background-color: rgba(0, 0, 0, 0.5); 
 }
+.smoke {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: radial-gradient(white, transparent 60%);
+    border-radius: 50%;
+    opacity: 0.5;
+    pointer-events: none;
+    animation: smokeUp 1.2s ease-out forwards;
+    z-index: 9999;
+  }
+  
+  @keyframes smokeUp {
+    0% {
+      transform: scale(1) translateY(0);
+      opacity: 0.5;
+    }
+    100% {
+      transform: scale(3) translateY(-80px);
+      opacity: 0;
+    }
+  }

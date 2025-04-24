@@ -30,6 +30,9 @@ import TicketLivree from './Components/livreur/TicketLivree';
 import NavLivreur from './Components/livreur/NavLivreur';
 import { AuthProvider } from './context/AuthUseContext';
 import CaissierSide from './Components/caissier/CaissierSide';
+import "./App.css";
+import CursorEffect from './Components/CursorEffect';
+
 
 function App() {
   const [orderItems, setOrderItems] = useState([]);
@@ -60,6 +63,7 @@ function Layout({ orderItems, addToOrder }) {
       <Routes>
         <Route path='/' element={
           <>
+            <CursorEffect/>
             <HeroSlider />
             <RestaurantSection />
             <TesterMenu/>
@@ -68,6 +72,7 @@ function Layout({ orderItems, addToOrder }) {
             <Reservation />
             <Horaire />
             <Footer />
+
           </>
         } />
         
