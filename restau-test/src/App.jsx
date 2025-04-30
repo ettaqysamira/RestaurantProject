@@ -32,6 +32,8 @@ import { AuthProvider } from './context/AuthUseContext';
 import CaissierSide from './Components/caissier/CaissierSide';
 import "./App.css";
 import CursorEffect from './Components/CursorEffect';
+import Reserver from './Components/Reserver';
+import Admin from './Components/Admin';
 
 
 function App() {
@@ -131,7 +133,8 @@ function Layout({ orderItems, addToOrder }) {
             <Route path="/Panier/informations-livraison" element={<LivraisonDetails />} />
             <Route path="/livreur/:id/ticket-details-livrée" element={<><NavLivreur/>< TicketLivree/></>} />
 
-
+            <Route path='/reserver' element={<Reserver />} />
+            <Route path='/reserver/admin' element={<Admin />} />
 
       </Routes>
     </>

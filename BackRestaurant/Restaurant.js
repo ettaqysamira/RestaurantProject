@@ -6,6 +6,8 @@ const path = require('path');
 const authRoutes = require("./authRoutes.js");
 const User = require("./userModel.js");
 const bcrypt = require("bcryptjs");
+const nodemailer = require('nodemailer');
+
 
 
 
@@ -84,6 +86,19 @@ const Order = mongoose.model('Order', new mongoose.Schema({
     
 }))
 
+
+const ReservationSchema = new mongoose.Schema({
+    name: String,
+    phone: String,
+    email: String,
+    date: String,
+    time: String,
+    people: Number,
+    preferences: String,
+    status: { type: String, default: 'en attente' },
+  });
+  
+  const Reservation = mongoose.model('Reservation', ReservationSchema);
 
 // schema Livreur
 const Livreur = mongoose.model('Livreur', new mongoose.Schema({
@@ -509,6 +524,62 @@ const createAdminIfNotExists = async () => {
     }
   };
 
+
+ 
+  
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: { user: 'ettaqy.samira20@gmail.com', pass: 'yamo mbmk tbwf gvpm' },
+  });
+  
+  app.post('/api/reservations', async (req, res) => {
+    const conflict = await Reservation.findOne({ date: req.body.date, time: req.body.time });
+    if (conflict) return res.status(400).json({ message: 'Créneau déjà réservé' });
+  
+    const reservation = new Reservation(req.body);
+    await reservation.save();
+  
+    // Email de confirmation
+    const mailOptions = {
+      from: 'ettaqy.samira20@gmail.com',
+      to: req.body.email,
+      subject: 'Confirmation de réservation',
+      text: `Bonjour ${req.body.name}, votre réservation pour ${req.body.date} à ${req.body.time} a été enregistrée.`,
+    };
+    transporter.sendMail(mailOptions);
+  
+    res.status(201).json(reservation);
+  });
+  
+  app.get('/api/reservations', async (req, res) => {
+    const reservations = await Reservation.find();
+    res.json(reservations);
+  });
+  
+  app.put('/api/reservations/:id', async (req, res) => {
+    const reservation = await Reservation.findByIdAndUpdate(req.params.id, req.body, { new: true });
+  
+    if (req.body.status === 'confirmée') {
+      const mailOptions = {
+        from: 'ettaqy.samira20@gmail.com',
+        to: reservation.email,
+        subject: 'Votre réservation a été acceptée',
+        text: `Bonjour ${reservation.name}, votre réservation pour le ${reservation.date} à ${reservation.time} a été acceptée. Merci et à bientôt !`,
+      };
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) console.error('Erreur envoi email :', error);
+        else console.log('Email envoyé :', info.response);
+      });
+    }
+  
+    res.json(reservation);
+  });
+  
+  
+  app.delete('/api/reservations/:id', async (req, res) => {
+    await Reservation.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Supprimé' });
+  });
 
 const PORT = process.env.PORT || 5000
 app.listen(PORT, () => {

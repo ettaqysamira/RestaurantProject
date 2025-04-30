@@ -1,33 +1,26 @@
-
 .smoke {
     position: absolute;
-    border-radius: 50%;
     pointer-events: none;
     z-index: 9999;
-    opacity: 0.25;
-    background: radial-gradient(rgba(255, 255, 255, 0.4), transparent 70%);
-    filter: blur(8px) brightness(1.1);
+    filter: blur(4px) brightness(1.2);
     mix-blend-mode: screen;
-    animation: floatUp ease-out forwards;
+    animation: floatSmoke ease-out forwards;
   }
   
-  @keyframes floatUp {
+  @keyframes floatSmoke {
     0% {
-      transform: scale(1) translateY(0) rotate(0deg);
-      opacity: 0.25;
+      transform: translateY(0) scale(1) rotate(0deg);
+      opacity: 0.4;
     }
-    40% {
-      transform: scale(1.4) translateY(-40px) rotate(10deg);
+    50% {
+      transform: translateY(-30px) scale(1.2) rotate(15deg);
       opacity: 0.2;
     }
-    70% {
-      transform: scale(1.7) translateY(-80px) rotate(20deg);
-      opacity: 0.1;
-    }
     100% {
-      transform: scale(2) translateY(-120px) rotate(30deg);
+      transform: translateY(-100px) scale(1.5) rotate(30deg);
       opacity: 0;
     }
   }
+  
   
   
