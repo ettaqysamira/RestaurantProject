@@ -7,6 +7,8 @@ const authRoutes = require("./authRoutes.js");
 const User = require("./userModel.js");
 const bcrypt = require("bcryptjs");
 const nodemailer = require('nodemailer');
+const cron = require('node-cron');
+
 
 
 
@@ -580,6 +582,9 @@ const createAdminIfNotExists = async () => {
     await Reservation.findByIdAndDelete(req.params.id);
     res.json({ message: 'Supprimé' });
   });
+
+
+
 
 const PORT = process.env.PORT || 5000
 app.listen(PORT, () => {
