@@ -98,9 +98,17 @@ const ReservationSchema = new mongoose.Schema({
     people: Number,
     preferences: String,
     status: { type: String, default: 'en attente' },
+    arrived: { type: Boolean, default: false },
+    tableNumber: Number,
+  });
+  const TableSchema = new mongoose.Schema({
+    number: Number,
+    capacity: Number,
+    isOccupied: { type: Boolean, default: false },
   });
   
   const Reservation = mongoose.model('Reservation', ReservationSchema);
+  const Table = mongoose.model('Table', TableSchema);
 
 // schema Livreur
 const Livreur = mongoose.model('Livreur', new mongoose.Schema({
@@ -529,59 +537,140 @@ const createAdminIfNotExists = async () => {
 
  
   
-  const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: { user: 'ettaqy.samira20@gmail.com', pass: 'yamo mbmk tbwf gvpm' },
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'ettaqy.samira20@gmail.com',
+    pass: 'yamo mbmk tbwf gvpm' 
+  },
+});
+
+app.post('/api/reservations', async (req, res) => {
+  const conflict = await Reservation.findOne({ date: req.body.date, time: req.body.time });
+  if (conflict) return res.status(400).json({ message: 'Créneau déjà réservé' });
+
+  const unavailableTables = await Reservation.distinct('tableNumber', { date: req.body.date, time: req.body.time });
+  const availableTable = await Table.findOne({
+    capacity: { $gte: req.body.people },
+    isOccupied: false,
+    number: { $nin: unavailableTables }
   });
-  
-  app.post('/api/reservations', async (req, res) => {
-    const conflict = await Reservation.findOne({ date: req.body.date, time: req.body.time });
-    if (conflict) return res.status(400).json({ message: 'Créneau déjà réservé' });
-  
-    const reservation = new Reservation(req.body);
-    await reservation.save();
-  
-    // Email de confirmation
+
+  if (!availableTable) return res.status(400).json({ message: 'Aucune table disponible' });
+
+  const reservation = new Reservation({ ...req.body, tableNumber: availableTable.number });
+  await reservation.save();
+
+  availableTable.isOccupied = true;
+  await availableTable.save();
+
+  const mailOptions = {
+    from: 'ettaqy.samira20@gmail.com',
+    to: req.body.email,
+    subject: 'Confirmation de réservation',
+    text: `Bonjour ${req.body.name}, votre réservation pour le ${req.body.date} à ${req.body.time} a été enregistrée. Table assignée : ${availableTable.number}.`,
+  };
+  transporter.sendMail(mailOptions);
+
+  res.status(201).json(reservation);
+});
+
+app.get('/api/reservations', async (req, res) => {
+  const reservations = await Reservation.find();
+  res.json(reservations);
+});
+
+app.put('/api/reservations/:id', async (req, res) => {
+  const reservation = await Reservation.findByIdAndUpdate(req.params.id, req.body, { new: true });
+
+  if (req.body.status === 'confirmée') {
     const mailOptions = {
       from: 'ettaqy.samira20@gmail.com',
-      to: req.body.email,
-      subject: 'Confirmation de réservation',
-      text: `Bonjour ${req.body.name}, votre réservation pour ${req.body.date} à ${req.body.time} a été enregistrée.`,
+      to: reservation.email,
+      subject: 'Votre réservation a été acceptée',
+      text: `Bonjour ${reservation.name}, votre réservation pour le ${reservation.date} à ${reservation.time} a été acceptée. Merci et à bientôt !`,
     };
-    transporter.sendMail(mailOptions);
-  
-    res.status(201).json(reservation);
+    transporter.sendMail(mailOptions, (error) => {
+      if (error) console.error('Erreur envoi email :', error);
+    });
+  }
+
+  if (req.body.arrived === true) {
+    const table = await Table.findOne({ number: reservation.tableNumber });
+    if (table) {
+      table.isOccupied = true;
+      await table.save();
+    }
+  }
+
+  res.json(reservation);
+});
+
+app.delete('/api/reservations/:id', async (req, res) => {
+  const reservation = await Reservation.findByIdAndDelete(req.params.id);
+  if (reservation) {
+    const table = await Table.findOne({ number: reservation.tableNumber });
+    if (table) {
+      table.isOccupied = false;
+      await table.save();
+    }
+  }
+  res.json({ message: 'Supprimé' });
+});
+
+app.get('/api/reservations/available-tables', async (req, res) => {
+  const { date, time } = req.query;
+  const unavailableTables = await Reservation.find({ date, time }).distinct('tableNumber');
+  const availableTables = await Table.find({
+    isOccupied: false,
+    number: { $nin: unavailableTables }
   });
-  
-  app.get('/api/reservations', async (req, res) => {
-    const reservations = await Reservation.find();
-    res.json(reservations);
-  });
-  
-  app.put('/api/reservations/:id', async (req, res) => {
-    const reservation = await Reservation.findByIdAndUpdate(req.params.id, req.body, { new: true });
-  
-    if (req.body.status === 'confirmée') {
+  res.json(availableTables);
+});
+
+
+app.post('/api/tables', async (req, res) => {
+  const { number, capacity } = req.body;
+  try {
+    const table = new Table({ number, capacity, isOccupied: false });
+    await table.save();
+    res.status(201).json(table);
+  } catch (err) {
+    res.status(400).json({ message: 'Erreur lors de la création de la table' });
+  }
+});
+
+app.get('/api/tables', async (req, res) => {
+  const tables = await Table.find();
+  res.json(tables);
+});
+
+
+cron.schedule('* * * * *', async () => {
+  const now = new Date();
+  const reservations = await Reservation.find({ status: 'confirmée', arrived: false });
+
+  for (let r of reservations) {
+    const resDate = new Date(`${r.date}T${r.time}`);
+    const deadline = new Date(resDate.getTime() + 15 * 60000);
+
+    if (now > deadline) {
+      await Reservation.findByIdAndDelete(r._id);
+      const table = await Table.findOne({ number: r.tableNumber });
+      if (table) {
+        table.isOccupied = false;
+        await table.save();
+      }
       const mailOptions = {
         from: 'ettaqy.samira20@gmail.com',
-        to: reservation.email,
-        subject: 'Votre réservation a été acceptée',
-        text: `Bonjour ${reservation.name}, votre réservation pour le ${reservation.date} à ${reservation.time} a été acceptée. Merci et à bientôt !`,
+        to: r.email,
+        subject: 'Annulation automatique de votre réservation',
+        text: `Bonjour ${r.name}, votre réservation prévue le ${r.date} à ${r.time} a été annulée faute de confirmation à l’heure.`,
       };
-      transporter.sendMail(mailOptions, (error, info) => {
-        if (error) console.error('Erreur envoi email :', error);
-        else console.log('Email envoyé :', info.response);
-      });
+      transporter.sendMail(mailOptions);
     }
-  
-    res.json(reservation);
-  });
-  
-  
-  app.delete('/api/reservations/:id', async (req, res) => {
-    await Reservation.findByIdAndDelete(req.params.id);
-    res.json({ message: 'Supprimé' });
-  });
+  }
+});
 
 
 
