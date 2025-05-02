@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { FaChair } from "react-icons/fa"; 
+import { Armchair } from 'lucide-react';
 
 export default function TableSelector({ form, setForm }) {
   const [availableTables, setAvailableTables] = useState([]);
@@ -38,7 +38,7 @@ export default function TableSelector({ form, setForm }) {
             `}
             onClick={() => isAvailable && handleSelectTable(num)}
           >
-            <FaChair size={24} />
+            <Armchair  size={24} />
             <span className="text-sm mt-1">Table {num}</span>
           </div>
         );
