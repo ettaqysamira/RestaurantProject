@@ -34,10 +34,12 @@ import "./App.css";
 import CursorEffect from './Components/CursorEffect';
 import Reserver from './Components/Reserver';
 import Admin from './Components/Admin';
+import TableSelector from './Components/SelectedTable';
 
 
 function App() {
   const [orderItems, setOrderItems] = useState([]);
+  const [form, setForm] = useState({});
 
   const addToOrder = (item) => {
     setOrderItems((prevOrder) => [...prevOrder, item]);
@@ -46,13 +48,13 @@ function App() {
   return (
     <BrowserRouter>
     <AuthProvider>
-      <Layout orderItems={orderItems} addToOrder={addToOrder} />
+      <Layout orderItems={orderItems} addToOrder={addToOrder}  form={form} setForm={setForm} />
       </AuthProvider>
     </BrowserRouter>
   );
 }
 
-function Layout({ orderItems, addToOrder }) {
+function Layout({ orderItems, addToOrder, form, setForm }) {
   const location = useLocation()
   const HideNavBar = location.pathname.startsWith('/cuisinier') || location.pathname.startsWith('/livreur') || location.pathname.startsWith('/signup') || location.pathname.startsWith('/login') ||  location.pathname.startsWith('/admin') ||  location.pathname.startsWith('/menucategorie') ||  location.pathname.startsWith('/Panier') || location.pathname.startsWith('/Panier/informations-livraison') || location.pathname.startsWith('/caissier')
   
@@ -135,6 +137,7 @@ function Layout({ orderItems, addToOrder }) {
 
             <Route path='/reserver' element={<Reserver />} />
             <Route path='/reserver/admin' element={<Admin />} />
+
 
       </Routes>
     </>

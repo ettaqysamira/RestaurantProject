@@ -3,9 +3,12 @@ import axios from 'axios';
 
 export default function Admin() {
   const [reservations, setReservations] = useState([]);
+  const [tableForm, setTableForm] = useState({ number: '', capacity: '' });
+  const [tables, setTables] = useState([]);
 
   useEffect(() => {
     fetchReservations();
+    fetchTables();
   }, []);
 
   const fetchReservations = async () => {
@@ -13,8 +16,18 @@ export default function Admin() {
     setReservations(res.data);
   };
 
+  const fetchTables = async () => {
+    const res = await axios.get('http://localhost:5000/api/tables');
+    setTables(res.data);
+  };
+
   const updateStatus = async (id, status) => {
     await axios.put(`http://localhost:5000/api/reservations/${id}`, { status });
+    fetchReservations();
+  };
+
+  const markArrived = async (id) => {
+    await axios.put(`http://localhost:5000/api/reservations/${id}`, { arrived: true });
     fetchReservations();
   };
 
@@ -23,21 +36,78 @@ export default function Admin() {
     fetchReservations();
   };
 
+  const handleTableChange = (e) => {
+    setTableForm({ ...tableForm, [e.target.name]: e.target.value });
+  };
+
+  const handleAddTable = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.post('http://localhost:5000/api/tables', tableForm);
+      alert('Table ajoutée avec succès');
+      setTableForm({ number: '', capacity: '' });
+      fetchTables();
+    } catch (err) {
+      alert(err.response?.data?.message || 'Erreur lors de l\'ajout de la table');
+    }
+  };
+
   return (
-    <div className="p-4 max-w-3xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Espace Administrateur</h1>
-      {reservations.map(r => (
-        <div key={r._id} className="border p-2 mb-2">
-          <div>{r.date} {r.time} - {r.name} ({r.people} pers.)</div>
-          <div>Email: {r.email}</div>
-          <div>Status: <strong>{r.status}</strong></div>
-          <div className="flex gap-2 mt-2">
-            <button onClick={() => updateStatus(r._id, 'confirmée')} className="bg-blue-500 text-white px-2 py-1 rounded">Confirmer</button>
-            <button onClick={() => updateStatus(r._id, 'annulée')} className="bg-yellow-500 text-white px-2 py-1 rounded">Annuler</button>
-            <button onClick={() => deleteReservation(r._id)} className="bg-red-600 text-white px-2 py-1 rounded">Supprimer</button>
+    <div className="p-4 max-w-4xl mx-auto">
+      <h1 className="text-2xl font-bold mb-6">Espace Administrateur</h1>
+
+      <div className="mb-6 border p-4 rounded shadow bg-gray-100">
+        <h2 className="text-lg font-semibold mb-2">Ajouter une nouvelle table</h2>
+        <form onSubmit={handleAddTable} className="flex flex-col gap-2">
+          <input
+            type="number"
+            name="number"
+            placeholder="Numéro de table"
+            value={tableForm.number}
+            onChange={handleTableChange}
+            required
+          />
+          <input
+            type="number"
+            name="capacity"
+            placeholder="Capacité"
+            value={tableForm.capacity}
+            onChange={handleTableChange}
+            required
+          />
+          <button type="submit" className="bg-blue-600 text-white py-1 px-4 rounded">Ajouter la table</button>
+        </form>
+      </div>
+
+      <div className="mb-6">
+        <h2 className="text-xl font-semibold mb-2">Tables existantes</h2>
+        <ul className="grid gap-2">
+          {tables.map((t) => (
+            <li key={t._id} className="bg-white p-2 rounded shadow">
+              Table {t.number} - Capacité : {t.capacity}
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div>
+        <h2 className="text-xl font-semibold mb-2">Réservations</h2>
+        {reservations.map(r => (
+          <div key={r._id} className="border p-3 mb-3 rounded bg-white shadow">
+            <div className="font-semibold">{r.date} {r.time} - {r.name} ({r.people} pers.)</div>
+            <div>Email: {r.email}</div>
+            <div>Préférences: {r.preferences || 'Aucune'}</div>
+            <div>Table: {r.tableNumber !== undefined ? r.tableNumber : 'Non assignée'}</div>
+            <div>Status: <strong>{r.status}</strong> | Arrivé : <strong>{r.arrived ? 'Oui' : 'Non'}</strong></div>
+            <div className="flex gap-2 mt-2">
+              <button onClick={() => updateStatus(r._id, 'acceptée')} className="bg-blue-500 text-white px-2 py-1 rounded">Accepter</button>
+              <button onClick={() => updateStatus(r._id, 'annulée')} className="bg-yellow-500 text-white px-2 py-1 rounded">Annuler</button>
+              <button onClick={() => markArrived(r._id)} className="bg-green-500 text-white px-2 py-1 rounded">Arrivé</button>
+              <button onClick={() => deleteReservation(r._id)} className="bg-red-600 text-white px-2 py-1 rounded">Supprimer</button>
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }

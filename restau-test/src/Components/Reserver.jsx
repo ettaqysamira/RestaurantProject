@@ -1,24 +1,38 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
- function Reserver() {
+export default function App() {
   const [reservations, setReservations] = useState([]);
+  const [availableTables, setAvailableTables] = useState([]);
   const [form, setForm] = useState({
-    name: '', phone: '', email: '', date: '', time: '', people: '', preferences: ''
+    name: '', phone: '', email: '', date: '', time: '', people: '', preferences: '', tableNumber: ''
   });
 
   const fetchReservations = async () => {
     const res = await axios.get('http://localhost:5000/api/reservations');
     setReservations(res.data);
   };
-  useEffect(() => { fetchReservations(); }, []);
+
+  const fetchAvailableTables = async () => {
+    if (!form.date || !form.time) return; 
+    const res = await axios.get(`http://localhost:5000/api/reservations/available-tables?date=${form.date}&time=${form.time}`);
+    setAvailableTables(res.data);
+  };
+
+  useEffect(() => {
+    fetchReservations();
+  }, []);
+
+  useEffect(() => {
+    fetchAvailableTables();
+  }, [form.date, form.time]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       await axios.post('http://localhost:5000/api/reservations', form);
       fetchReservations();
-      setForm({ name: '', phone: '', email: '', date: '', time: '', people: '', preferences: '' });
+      setForm({ name: '', phone: '', email: '', date: '', time: '', people: '', preferences: '', tableNumber: '' });
     } catch (err) {
       alert(err.response?.data?.message || 'Erreur serveur');
     }
@@ -37,6 +51,13 @@ import axios from 'axios';
         <input name="time" type="time" value={form.time} onChange={handleChange} required />
         <input name="people" type="number" min="1" value={form.people} onChange={handleChange} required />
         <input name="preferences" placeholder="Préférences (ex: sans gluten, terrasse...)" value={form.preferences} onChange={handleChange} />
+            <select name="tableNumber" value={form.tableNumber} onChange={handleChange} required>
+    <option value="">Choisir une table</option>
+    {availableTables.map((t) => (
+        <option key={t._id || t.number} value={t.number}>Table {t.number} - {t.capacity} pers.</option>
+    ))}
+    </select>
+
         <button type="submit" className="bg-green-600 text-white py-2 rounded">Réserver</button>
       </form>
 
@@ -44,12 +65,10 @@ import axios from 'axios';
       <ul className="mt-2">
         {reservations.map((r) => (
           <li key={r._id} className="border-b py-1">
-            {r.date} {r.time} - {r.name} ({r.people} pers.) [{r.status}]
+            {r.date} {r.time} - {r.name} ({r.people} pers.) [Table {r.tableNumber !== undefined ? r.tableNumber : 'non assignée'}] [{r.status}]
           </li>
         ))}
       </ul>
     </div>
   );
 }
-
-export default Reserver;

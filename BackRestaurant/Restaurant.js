@@ -546,34 +546,59 @@ const transporter = nodemailer.createTransport({
 });
 
 app.post('/api/reservations', async (req, res) => {
-  const conflict = await Reservation.findOne({ date: req.body.date, time: req.body.time });
-  if (conflict) return res.status(400).json({ message: 'Créneau déjà réservé' });
+  const { date, time, tableNumber, people } = req.body;
 
-  const unavailableTables = await Reservation.distinct('tableNumber', { date: req.body.date, time: req.body.time });
-  const availableTable = await Table.findOne({
-    capacity: { $gte: req.body.people },
-    isOccupied: false,
-    number: { $nin: unavailableTables }
-  });
+  // Vérifie les conflits
+  const conflict = await Reservation.findOne({ date, time, tableNumber });
+  if (conflict) return res.status(400).json({ message: 'Cette table est déjà réservée' });
 
-  if (!availableTable) return res.status(400).json({ message: 'Aucune table disponible' });
+  // Vérifie si la table est disponible
+  let availableTable;
 
-  const reservation = new Reservation({ ...req.body, tableNumber: availableTable.number });
+  if (tableNumber) {
+    availableTable = await Table.findOne({
+      number: tableNumber,
+      isOccupied: false
+    });
+
+    if (!availableTable) {
+      return res.status(400).json({ message: 'Table sélectionnée non disponible' });
+    }
+  } else {
+    // Choix automatique d'une table si l'utilisateur n’a pas sélectionné
+    const unavailableTables = await Reservation.distinct('tableNumber', { date, time });
+    availableTable = await Table.findOne({
+      capacity: { $gte: people },
+      isOccupied: false,
+      number: { $nin: unavailableTables }
+    });
+
+    if (!availableTable) {
+      return res.status(400).json({ message: 'Aucune table disponible' });
+    }
+
+    req.body.tableNumber = availableTable.number;
+  }
+
+  // Sauvegarde
+  const reservation = new Reservation(req.body);
   await reservation.save();
 
   availableTable.isOccupied = true;
   await availableTable.save();
 
+  // Envoi email
   const mailOptions = {
     from: 'ettaqy.samira20@gmail.com',
     to: req.body.email,
     subject: 'Confirmation de réservation',
-    text: `Bonjour ${req.body.name}, votre réservation pour le ${req.body.date} à ${req.body.time} a été enregistrée. Table assignée : ${availableTable.number}.`,
+    text: `Bonjour ${req.body.name}, votre réservation pour le ${date} à ${time} a été enregistrée. Table assignée : ${availableTable.number}.`,
   };
   transporter.sendMail(mailOptions);
 
   res.status(201).json(reservation);
 });
+
 
 app.get('/api/reservations', async (req, res) => {
   const reservations = await Reservation.find();
