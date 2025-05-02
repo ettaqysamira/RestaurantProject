@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-
+import TableSelector from './SelectedTable';
 export default function App() {
   const [reservations, setReservations] = useState([]);
   const [availableTables, setAvailableTables] = useState([]);
@@ -51,12 +51,8 @@ export default function App() {
         <input name="time" type="time" value={form.time} onChange={handleChange} required />
         <input name="people" type="number" min="1" value={form.people} onChange={handleChange} required />
         <input name="preferences" placeholder="Préférences (ex: sans gluten, terrasse...)" value={form.preferences} onChange={handleChange} />
-            <select name="tableNumber" value={form.tableNumber} onChange={handleChange} required>
-    <option value="">Choisir une table</option>
-    {availableTables.map((t) => (
-        <option key={t._id || t.number} value={t.number}>Table {t.number} - {t.capacity} pers.</option>
-    ))}
-    </select>
+        <TableSelector form={form} setForm={setForm} />
+
 
         <button type="submit" className="bg-green-600 text-white py-2 rounded">Réserver</button>
       </form>
