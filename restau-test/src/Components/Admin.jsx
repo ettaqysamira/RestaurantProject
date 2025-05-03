@@ -1,5 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { FaCheckCircle } from 'react-icons/fa';
+
+
 
 export default function Admin() {
   const [reservations, setReservations] = useState([]);
@@ -44,16 +49,20 @@ export default function Admin() {
     e.preventDefault();
     try {
       await axios.post('http://localhost:5000/api/tables', tableForm);
-      alert('Table ajoutée avec succès');
+      toast.success('Table ajoutée avec succès', {
+        icon: <FaCheckCircle color="#065f46" size={20} />,  progressStyle: {
+          background: '#ff0000',},
+        
+        });
       setTableForm({ number: '', capacity: '' });
       fetchTables();
     } catch (err) {
-      alert(err.response?.data?.message || 'Erreur lors de l\'ajout de la table');
+      toast.error(err.response?.data?.message || 'Erreur lors de l\'ajout de la table');
     }
   };
 
   return (
-    <div className="p-4 max-w-4xl mx-auto">
+    <div className="p-4 max-w-4xl mx-auto mt-28">
       <h1 className="text-2xl font-bold mb-6">Espace Administrateur</h1>
 
       <div className="mb-6 border p-4 rounded shadow bg-gray-100">
@@ -100,7 +109,7 @@ export default function Admin() {
             <div>Table: {r.tableNumber !== undefined ? r.tableNumber : 'Non assignée'}</div>
             <div>Status: <strong>{r.status}</strong> | Arrivé : <strong>{r.arrived ? 'Oui' : 'Non'}</strong></div>
             <div className="flex gap-2 mt-2">
-              <button onClick={() => updateStatus(r._id, 'acceptée')} className="bg-blue-500 text-white px-2 py-1 rounded">Accepter</button>
+              <button onClick={() => updateStatus(r._id, 'confirmée')} className="bg-blue-500 text-white px-2 py-1 rounded">Accepter</button>
               <button onClick={() => updateStatus(r._id, 'annulée')} className="bg-yellow-500 text-white px-2 py-1 rounded">Annuler</button>
               <button onClick={() => markArrived(r._id)} className="bg-green-500 text-white px-2 py-1 rounded">Arrivé</button>
               <button onClick={() => deleteReservation(r._id)} className="bg-red-600 text-white px-2 py-1 rounded">Supprimer</button>
@@ -108,6 +117,17 @@ export default function Admin() {
           </div>
         ))}
       </div>
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} theme="light" 
+    toastStyle={{
+    backgroundColor: '#c19d60',
+    color: '#065f46',           
+    borderRadius: '8px',
+    fontWeight: '500',
+  }}
+  progressStyle={{
+    background: '#065f46' 
+  }}
+/>
     </div>
   );
 }

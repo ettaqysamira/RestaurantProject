@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import TableSelector from './SelectedTable';
+
 export default function App() {
   const [reservations, setReservations] = useState([]);
   const [availableTables, setAvailableTables] = useState([]);
@@ -14,7 +15,7 @@ export default function App() {
   };
 
   const fetchAvailableTables = async () => {
-    if (!form.date || !form.time) return; 
+    if (!form.date || !form.time) return;
     const res = await axios.get(`http://localhost:5000/api/reservations/available-tables?date=${form.date}&time=${form.time}`);
     setAvailableTables(res.data);
   };
@@ -41,26 +42,34 @@ export default function App() {
   const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value });
 
   return (
-    <div className="p-4 max-w-xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Réservation en ligne</h1>
-      <form onSubmit={handleSubmit} className="grid gap-2">
-        <input name="name" placeholder="Nom" value={form.name} onChange={handleChange} required />
-        <input name="phone" placeholder="Téléphone" value={form.phone} onChange={handleChange} required />
-        <input name="email" placeholder="Email" value={form.email} onChange={handleChange} required />
-        <input name="date" type="date" value={form.date} onChange={handleChange} required />
-        <input name="time" type="time" value={form.time} onChange={handleChange} required />
-        <input name="people" type="number" min="1" value={form.people} onChange={handleChange} required />
-        <input name="preferences" placeholder="Préférences (ex: sans gluten, terrasse...)" value={form.preferences} onChange={handleChange} />
-        <TableSelector form={form} setForm={setForm} />
+    <div className="p-4 max-w-6xl mx-auto my-36">
+      <h1 className="text-3xl font-bold mb-6 text-center">Réservation en ligne</h1>
 
+      <form onSubmit={handleSubmit} className="grid md:grid-cols-2 gap-6 bg-white p-6 rounded-lg shadow-lg">
+        <div className="space-y-4">
+          <input name="name" placeholder="Nom" value={form.name} onChange={handleChange} required className="w-full p-2 border rounded" />
+          <input name="phone" placeholder="Téléphone" value={form.phone} onChange={handleChange} required className="w-full p-2 border rounded" />
+          <input name="email" placeholder="Email" value={form.email} onChange={handleChange} required className="w-full p-2 border rounded" />
+          <input name="date" type="date" value={form.date} onChange={handleChange} required className="w-full p-2 border rounded" />
+          <input name="time" type="time" value={form.time} onChange={handleChange} required className="w-full p-2 border rounded" />
+          <input name="people" type="number" min="1" placeholder="Nombre de personnes" value={form.people} onChange={handleChange} required className="w-full p-2 border rounded" />
+        </div>
 
-        <button type="submit" className="bg-green-600 text-white py-2 rounded">Réserver</button>
+        <div>
+          <TableSelector form={form} setForm={setForm} availableTables={availableTables} />
+        </div>
+
+        <div className="md:col-span-2">
+          <button type="submit" className="w-full bg-green-600 text-white py-3 rounded hover:bg-green-700 transition">
+            Réserver
+          </button>
+        </div>
       </form>
 
-      <h2 className="text-xl mt-6">Réservations existantes</h2>
-      <ul className="mt-2">
+      <h2 className="text-xl mt-10 mb-2 font-semibold">Réservations existantes</h2>
+      <ul className="space-y-2">
         {reservations.map((r) => (
-          <li key={r._id} className="border-b py-1">
+          <li key={r._id} className="border p-2 rounded shadow-sm">
             {r.date} {r.time} - {r.name} ({r.people} pers.) [Table {r.tableNumber !== undefined ? r.tableNumber : 'non assignée'}] [{r.status}]
           </li>
         ))}

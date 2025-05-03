@@ -60,7 +60,7 @@ const ShowMenu = () => {
         </Slider>
       </div>
       <div>
-        <button>view all menu</button>
+        <button>Voir tout le menu</button>
       </div>
     </section>
     </>
